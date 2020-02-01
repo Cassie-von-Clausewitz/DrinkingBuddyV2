@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs.kotlin"
+apply from: '../tokens.gradle'
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
@@ -40,16 +41,16 @@ android {
         debug {
             minifyEnabled false
             testCoverageEnabled true
-            useProguard false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
+            buildConfigField("String", "BAC_TRACK_TOKEN", "${bac_track_token}")
         }
 
         release {
             minifyEnabled true
-            useProguard true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             testProguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguardTest-rules.pro'
+            buildConfigField("String", "BAC_TRACK_TOKEN", "${bac_track_token}")
         }
     }
 
@@ -162,4 +163,7 @@ dependencies {
     // Using Dagger in androidTest and Robolectric too
     kaptAndroidTest "com.google.dagger:dagger-compiler:$daggerVersion"
     kaptTest "com.google.dagger:dagger-compiler:$daggerVersion"
+
+    // runtime permissions
+    implementation "com.sagar:livedatapermission:$liveDataPermissions"
 }

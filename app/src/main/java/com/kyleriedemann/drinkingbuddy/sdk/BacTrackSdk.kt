@@ -1,56 +1,67 @@
+@file:Suppress("unused")
+
 package com.kyleriedemann.drinkingbuddy.sdk
 
 import BACtrackAPI.API.BACtrackAPI
 import BACtrackAPI.API.BACtrackAPICallbacks
+import BACtrackAPI.API.BACtrackAPICallbacksFull
 import BACtrackAPI.Constants.BACTrackDeviceType
 import BACtrackAPI.Constants.BACtrackUnit
+import BACtrackAPI.Exceptions.BluetoothLENotSupportedException
+import BACtrackAPI.Exceptions.BluetoothNotEnabledException
+import BACtrackAPI.Exceptions.LocationServicesNotEnabledException
+import android.app.Application
+import android.content.Context
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+import timber.log.Timber
 
 /**
  * Created by kyle
  *
  * 1/25/20
  */
-typealias bacAPIKeyDeclined = (errorMessage: String) -> Unit
-typealias bacAPIKeyAuthorized = () -> Unit
-typealias bacConnected = (deviceType: BACTrackDeviceType) -> Unit
-typealias bacDidConnect = (message: String) -> Unit
-typealias bacDisconnected = () -> Unit
-typealias bacConnectionTimeout = () -> Unit
-typealias bacFoundBreathalyzer = (device: BACtrackAPI.BACtrackDevice) -> Unit
-typealias bacCountdown = (count: Int) -> Unit
-typealias bacStart = () -> Unit
-typealias bacBlow = () -> Unit
-typealias bacAnalyzing = () -> Unit
-typealias bacResults = (measuredBac: Float) -> Unit
-typealias bacFirmwareVersion = (version: String) -> Unit
-typealias bacSerial = (serialHex: String) -> Unit
-typealias bacUseCount = (useCount: Int) -> Unit
-typealias bacBatteryVoltage = (voltage: Float) -> Unit
-typealias bacBatteryLevel = (level: Int) -> Unit
-typealias bacError = (errorCode: SdkErrors) -> Unit
-typealias bacUnits = (unit: BACtrackUnit) -> Unit
+typealias BacAPIKeyDeclined = (errorMessage: String) -> Unit
+typealias BacAPIKeyAuthorized = () -> Unit
+typealias BacConnected = (deviceType: BACTrackDeviceType) -> Unit
+typealias BacDidConnect = (message: String) -> Unit
+typealias BacDisconnected = () -> Unit
+typealias BacConnectionTimeout = () -> Unit
+typealias BacFoundBreathalyzer = (device: BACtrackAPI.BACtrackDevice) -> Unit
+typealias BacCountdown = (count: Int) -> Unit
+typealias BacStart = () -> Unit
+typealias BacBlow = () -> Unit
+typealias BacAnalyzing = () -> Unit
+typealias BacResults = (measuredBac: Float) -> Unit
+typealias BacFirmwareVersion = (version: String) -> Unit
+typealias BacSerial = (serialHex: String) -> Unit
+typealias BacUseCount = (useCount: Int) -> Unit
+typealias BacBatteryVoltage = (voltage: Float) -> Unit
+typealias BacBatteryLevel = (level: Int) -> Unit
+typealias BacError = (errorCode: SdkErrors) -> Unit
+typealias BacUnits = (unit: BACtrackUnit) -> Unit
 
-@Suppress("MemberVisibilityCanBePrivate", "unused")
+@Suppress("MemberVisibilityCanBePrivate")
 class BACtrackDefaultCallbacks(
-        val apikeyAcceptedCallbacks: MutableList<bacAPIKeyAuthorized> = mutableListOf(),
-        val apiKeyDeclinedCallbacks: MutableList<bacAPIKeyDeclined> = mutableListOf(),
-        val connectedCallbacks: MutableList<bacConnected> = mutableListOf(),
-        val didConnectCallbacks: MutableList<bacDidConnect> = mutableListOf(),
-        val disconnectedCallbacks: MutableList<bacDisconnected> = mutableListOf(),
-        val connectionTimeoutCallbacks: MutableList<bacConnectionTimeout> = mutableListOf(),
-        val foundBreathalyzerCallbacks: MutableList<bacFoundBreathalyzer> = mutableListOf(),
-        val countdownCallbacks: MutableList<bacCountdown> = mutableListOf(),
-        val startCallbacks: MutableList<bacStart> = mutableListOf(),
-        val blowCallbacks: MutableList<bacBlow> = mutableListOf(),
-        val analyzingCallbacks: MutableList<bacAnalyzing> = mutableListOf(),
-        val resultsCallbacks: MutableList<bacResults> = mutableListOf(),
-        val firmwareVersionCallbacks: MutableList<bacFirmwareVersion> = mutableListOf(),
-        val serialCallbacks: MutableList<bacSerial> = mutableListOf(),
-        val useCountCallbacks: MutableList<bacUseCount> = mutableListOf(),
-        val batteryVoltageCallbacks: MutableList<bacBatteryVoltage> = mutableListOf(),
-        val batteryLevelCallbacks: MutableList<bacBatteryLevel> = mutableListOf(),
-        val errorCallbacks: MutableList<bacError> = mutableListOf(),
-        val unitsCallbacks: MutableList<bacUnits> = mutableListOf()
+    val apikeyAcceptedCallbacks: MutableList<BacAPIKeyAuthorized> = mutableListOf(),
+    val apiKeyDeclinedCallbacks: MutableList<BacAPIKeyDeclined> = mutableListOf(),
+    val connectedCallbacks: MutableList<BacConnected> = mutableListOf(),
+    val didConnectCallbacks: MutableList<BacDidConnect> = mutableListOf(),
+    val disconnectedCallbacks: MutableList<BacDisconnected> = mutableListOf(),
+    val connectionTimeoutCallbacks: MutableList<BacConnectionTimeout> = mutableListOf(),
+    val foundBreathalyzerCallbacks: MutableList<BacFoundBreathalyzer> = mutableListOf(),
+    val countdownCallbacks: MutableList<BacCountdown> = mutableListOf(),
+    val startCallbacks: MutableList<BacStart> = mutableListOf(),
+    val blowCallbacks: MutableList<BacBlow> = mutableListOf(),
+    val analyzingCallbacks: MutableList<BacAnalyzing> = mutableListOf(),
+    val resultsCallbacks: MutableList<BacResults> = mutableListOf(),
+    val firmwareVersionCallbacks: MutableList<BacFirmwareVersion> = mutableListOf(),
+    val serialCallbacks: MutableList<BacSerial> = mutableListOf(),
+    val useCountCallbacks: MutableList<BacUseCount> = mutableListOf(),
+    val batteryVoltageCallbacks: MutableList<BacBatteryVoltage> = mutableListOf(),
+    val batteryLevelCallbacks: MutableList<BacBatteryLevel> = mutableListOf(),
+    val errorCallbacks: MutableList<BacError> = mutableListOf(),
+    val unitsCallbacks: MutableList<BacUnits> = mutableListOf()
 ): BACtrackAPICallbacks {
     override fun BACtrackAPIKeyDeclined(errorMessage: String) = apiKeyDeclinedCallbacks.forEach { it(errorMessage) }
     override fun BACtrackAPIKeyAuthorized() = apikeyAcceptedCallbacks.forEach { it.invoke() }
@@ -71,9 +82,187 @@ class BACtrackDefaultCallbacks(
     override fun BACtrackBatteryVoltage(voltage: Float) = batteryVoltageCallbacks.forEach { it(voltage) }
     override fun BACtrackBatteryLevel(level: Int) = batteryLevelCallbacks.forEach { it(level) }
     override fun BACtrackError(errorCode: Int) = errorCallbacks.forEach { it(SdkErrors.fromInt(errorCode)) }
+
+    fun foldInCallbacks(callbacks: BACtrackDefaultCallbacks): BACtrackDefaultCallbacks {
+        apikeyAcceptedCallbacks.addAll(callbacks.apikeyAcceptedCallbacks)
+        apiKeyDeclinedCallbacks.addAll(callbacks.apiKeyDeclinedCallbacks)
+        connectedCallbacks.addAll(callbacks.connectedCallbacks)
+        didConnectCallbacks.addAll(callbacks.didConnectCallbacks)
+        disconnectedCallbacks.addAll(callbacks.disconnectedCallbacks)
+        connectionTimeoutCallbacks.addAll(callbacks.connectionTimeoutCallbacks)
+        foundBreathalyzerCallbacks.addAll(callbacks.foundBreathalyzerCallbacks)
+        countdownCallbacks.addAll(callbacks.countdownCallbacks)
+        startCallbacks.addAll(callbacks.startCallbacks)
+        blowCallbacks.addAll(callbacks.blowCallbacks)
+        analyzingCallbacks.addAll(callbacks.analyzingCallbacks)
+        resultsCallbacks.addAll(callbacks.resultsCallbacks)
+        firmwareVersionCallbacks.addAll(callbacks.firmwareVersionCallbacks)
+        serialCallbacks.addAll(callbacks.serialCallbacks)
+        useCountCallbacks.addAll(callbacks.useCountCallbacks)
+        batteryVoltageCallbacks.addAll(callbacks.batteryVoltageCallbacks)
+        batteryLevelCallbacks.addAll(callbacks.batteryLevelCallbacks)
+        errorCallbacks.addAll(callbacks.errorCallbacks)
+        unitsCallbacks.addAll(callbacks.unitsCallbacks)
+        return this
+    }
 }
 
-@Suppress("unused")
+typealias BacOnStateActive = () -> Unit
+typealias BacCalibrationResults = (calibrationResults: ByteArray) -> Unit
+typealias BacConnectionError = () -> Unit
+typealias BaaBreathalysersNotFound = () -> Unit
+typealias BacTransmitPower = (power: Byte) -> Unit
+typealias BacProtectionBit = (protectionBit: ByteArray) -> Unit
+typealias BacOnStateIdle = () -> Unit
+
+@Suppress("MemberVisibilityCanBePrivate")
+class BacTrackFullCallbacks(
+    val apikeyAcceptedCallbacks: MutableList<BacAPIKeyAuthorized> = mutableListOf(),
+    val apiKeyDeclinedCallbacks: MutableList<BacAPIKeyDeclined> = mutableListOf(),
+    val connectedCallbacks: MutableList<BacConnected> = mutableListOf(),
+    val didConnectCallbacks: MutableList<BacDidConnect> = mutableListOf(),
+    val disconnectedCallbacks: MutableList<BacDisconnected> = mutableListOf(),
+    val connectionTimeoutCallbacks: MutableList<BacConnectionTimeout> = mutableListOf(),
+    val foundBreathalyzerCallbacks: MutableList<BacFoundBreathalyzer> = mutableListOf(),
+    val countdownCallbacks: MutableList<BacCountdown> = mutableListOf(),
+    val startCallbacks: MutableList<BacStart> = mutableListOf(),
+    val blowCallbacks: MutableList<BacBlow> = mutableListOf(),
+    val analyzingCallbacks: MutableList<BacAnalyzing> = mutableListOf(),
+    val resultsCallbacks: MutableList<BacResults> = mutableListOf(),
+    val firmwareVersionCallbacks: MutableList<BacFirmwareVersion> = mutableListOf(),
+    val serialCallbacks: MutableList<BacSerial> = mutableListOf(),
+    val useCountCallbacks: MutableList<BacUseCount> = mutableListOf(),
+    val batteryVoltageCallbacks: MutableList<BacBatteryVoltage> = mutableListOf(),
+    val batteryLevelCallbacks: MutableList<BacBatteryLevel> = mutableListOf(),
+    val errorCallbacks: MutableList<BacError> = mutableListOf(),
+    val unitsCallbacks: MutableList<BacUnits> = mutableListOf(),
+    val onStateActiveCallbacks: MutableList<BacOnStateActive> = mutableListOf(),
+    val calibrationResultsCallbacks: MutableList<BacCalibrationResults> = mutableListOf(),
+    val connectionErrorCallbacks: MutableList<BacConnectionError> = mutableListOf(),
+    val breathalysersNotFoundCallbacks: MutableList<BaaBreathalysersNotFound> = mutableListOf(),
+    val transmitPowerCallbacks: MutableList<BacTransmitPower> = mutableListOf(),
+    val protectionBitCallbacks: MutableList<BacProtectionBit> = mutableListOf(),
+    val onStateIdleCallbacks: MutableList<BacOnStateIdle> = mutableListOf()
+) : BACtrackAPICallbacksFull {
+    override fun BACtrackAPIKeyDeclined(errorMessage: String) = apiKeyDeclinedCallbacks.forEach { it(errorMessage) }
+    override fun BACtrackAPIKeyAuthorized() = apikeyAcceptedCallbacks.forEach { it.invoke() }
+    override fun BACtrackConnected(deviceType: BACTrackDeviceType) = connectedCallbacks.forEach { it(deviceType) }
+    override fun BACtrackDidConnect(s: String) = didConnectCallbacks.forEach { it(s) }
+    override fun BACtrackDisconnected() = disconnectedCallbacks.forEach { it() }
+    override fun BACtrackConnectionTimeout() = connectionTimeoutCallbacks.forEach { it() }
+    override fun BACtrackUnits(unit: BACtrackUnit) = unitsCallbacks.forEach { it(unit) }
+    override fun BACtrackFoundBreathalyzer(device: BACtrackAPI.BACtrackDevice) = foundBreathalyzerCallbacks.forEach { it(device) }
+    override fun BACtrackCountdown(count: Int) = countdownCallbacks.forEach { it(count) }
+    override fun BACtrackStart() = startCallbacks.forEach { it() }
+    override fun BACtrackBlow() = blowCallbacks.forEach { it() }
+    override fun BACtrackAnalyzing() = analyzingCallbacks.forEach { it() }
+    override fun BACtrackResults(measuredBac: Float) = resultsCallbacks.forEach { it(measuredBac) }
+    override fun BACtrackFirmwareVersion(version: String) = firmwareVersionCallbacks.forEach { it(version) }
+    override fun BACtrackSerial(serialHex: String) = serialCallbacks.forEach { it(serialHex) }
+    override fun BACtrackUseCount(useCount: Int) = useCountCallbacks.forEach { it(useCount) }
+    override fun BACtrackBatteryVoltage(voltage: Byte) = batteryVoltageCallbacks.forEach { it(voltage.toFloat()) }
+    override fun BACtrackBatteryLevel(level: Int) = batteryLevelCallbacks.forEach { it(level) }
+    override fun BACtrackError(errorCode: Int) = errorCallbacks.forEach { it(SdkErrors.fromInt(errorCode)) }
+    override fun BACtrackOnStateActive() = onStateActiveCallbacks.forEach { it() }
+    override fun BACtrackCalibrationResults(calibrationResults: ByteArray) = calibrationResultsCallbacks.forEach { it(calibrationResults) }
+    override fun BACtrackConnectionError() = connectionErrorCallbacks.forEach { it() }
+    override fun BACtrackNoBreathalyzersFound() = breathalysersNotFoundCallbacks.forEach { it() }
+    override fun BACtrackTransmitPower(power: Byte) = transmitPowerCallbacks.forEach { it(power) }
+    override fun BACtrackProtectionBit(protectionBit: ByteArray) = protectionBitCallbacks.forEach { it(protectionBit) }
+    override fun BACtrackOnStateIdle() = onStateIdleCallbacks.forEach { it() }
+
+    fun foldInDefaultCallbacks(bacTrackDefaultCallbacks: BACtrackDefaultCallbacks): BacTrackFullCallbacks {
+        apikeyAcceptedCallbacks.addAll(bacTrackDefaultCallbacks.apikeyAcceptedCallbacks)
+        apiKeyDeclinedCallbacks.addAll(bacTrackDefaultCallbacks.apiKeyDeclinedCallbacks)
+        connectedCallbacks.addAll(bacTrackDefaultCallbacks.connectedCallbacks)
+        didConnectCallbacks.addAll(bacTrackDefaultCallbacks.didConnectCallbacks)
+        disconnectedCallbacks.addAll(bacTrackDefaultCallbacks.disconnectedCallbacks)
+        connectionTimeoutCallbacks.addAll(bacTrackDefaultCallbacks.connectionTimeoutCallbacks)
+        foundBreathalyzerCallbacks.addAll(bacTrackDefaultCallbacks.foundBreathalyzerCallbacks)
+        countdownCallbacks.addAll(bacTrackDefaultCallbacks.countdownCallbacks)
+        startCallbacks.addAll(bacTrackDefaultCallbacks.startCallbacks)
+        blowCallbacks.addAll(bacTrackDefaultCallbacks.blowCallbacks)
+        analyzingCallbacks.addAll(bacTrackDefaultCallbacks.analyzingCallbacks)
+        resultsCallbacks.addAll(bacTrackDefaultCallbacks.resultsCallbacks)
+        firmwareVersionCallbacks.addAll(bacTrackDefaultCallbacks.firmwareVersionCallbacks)
+        serialCallbacks.addAll(bacTrackDefaultCallbacks.serialCallbacks)
+        useCountCallbacks.addAll(bacTrackDefaultCallbacks.useCountCallbacks)
+        batteryVoltageCallbacks.addAll(bacTrackDefaultCallbacks.batteryVoltageCallbacks)
+        batteryLevelCallbacks.addAll(bacTrackDefaultCallbacks.batteryLevelCallbacks)
+        errorCallbacks.addAll(bacTrackDefaultCallbacks.errorCallbacks)
+        unitsCallbacks.addAll(bacTrackDefaultCallbacks.unitsCallbacks)
+        return this
+    }
+
+    fun foldInCallbacks(bacTrackFullCallbacks: BacTrackFullCallbacks): BacTrackFullCallbacks {
+        apikeyAcceptedCallbacks.addAll(bacTrackFullCallbacks.apikeyAcceptedCallbacks)
+        apiKeyDeclinedCallbacks.addAll(bacTrackFullCallbacks.apiKeyDeclinedCallbacks)
+        connectedCallbacks.addAll(bacTrackFullCallbacks.connectedCallbacks)
+        didConnectCallbacks.addAll(bacTrackFullCallbacks.didConnectCallbacks)
+        disconnectedCallbacks.addAll(bacTrackFullCallbacks.disconnectedCallbacks)
+        connectionTimeoutCallbacks.addAll(bacTrackFullCallbacks.connectionTimeoutCallbacks)
+        foundBreathalyzerCallbacks.addAll(bacTrackFullCallbacks.foundBreathalyzerCallbacks)
+        countdownCallbacks.addAll(bacTrackFullCallbacks.countdownCallbacks)
+        startCallbacks.addAll(bacTrackFullCallbacks.startCallbacks)
+        blowCallbacks.addAll(bacTrackFullCallbacks.blowCallbacks)
+        analyzingCallbacks.addAll(bacTrackFullCallbacks.analyzingCallbacks)
+        resultsCallbacks.addAll(bacTrackFullCallbacks.resultsCallbacks)
+        firmwareVersionCallbacks.addAll(bacTrackFullCallbacks.firmwareVersionCallbacks)
+        serialCallbacks.addAll(bacTrackFullCallbacks.serialCallbacks)
+        useCountCallbacks.addAll(bacTrackFullCallbacks.useCountCallbacks)
+        batteryVoltageCallbacks.addAll(bacTrackFullCallbacks.batteryVoltageCallbacks)
+        batteryLevelCallbacks.addAll(bacTrackFullCallbacks.batteryLevelCallbacks)
+        errorCallbacks.addAll(bacTrackFullCallbacks.errorCallbacks)
+        unitsCallbacks.addAll(bacTrackFullCallbacks.unitsCallbacks)
+        onStateActiveCallbacks.addAll(bacTrackFullCallbacks.onStateActiveCallbacks)
+        calibrationResultsCallbacks.addAll(bacTrackFullCallbacks.calibrationResultsCallbacks)
+        connectionErrorCallbacks.addAll(bacTrackFullCallbacks.connectionErrorCallbacks)
+        breathalysersNotFoundCallbacks.addAll(bacTrackFullCallbacks.breathalysersNotFoundCallbacks)
+        transmitPowerCallbacks.addAll(bacTrackFullCallbacks.transmitPowerCallbacks)
+        protectionBitCallbacks.addAll(bacTrackFullCallbacks.protectionBitCallbacks)
+        onStateIdleCallbacks.addAll(bacTrackFullCallbacks.onStateIdleCallbacks)
+        return this
+    }
+}
+
+class BacTrackSdk(
+    private val application: Application,
+    private val apiKey: String,
+    callbacks: BACtrackDefaultCallbacks = BACtrackDefaultCallbacks(),
+    private val fullCallbacksCallbacks: BacTrackFullCallbacks = BacTrackFullCallbacks()
+) {
+    init {
+        fullCallbacksCallbacks.foldInDefaultCallbacks(callbacks)
+    }
+
+    private var bacTrackSdk: BACtrackAPI? = null
+
+    fun start() {
+        try {
+            bacTrackSdk = BACtrackAPI(application, fullCallbacksCallbacks, apiKey)
+            bacTrackSdk?.breathalyzerBatteryVoltage
+        } catch (t: BluetoothLENotSupportedException) {
+            Timber.e("BLE not supported")
+        } catch (t: LocationServicesNotEnabledException) {
+            Timber.e("Location services not enabled")
+        } catch (t: BluetoothNotEnabledException) {
+            Timber.e("Bluetooth not enabled")
+        }
+    }
+
+    val isConnected = bacTrackSdk?.isConnected ?: false
+
+    fun connectToClosestDevice() = bacTrackSdk?.connectToNearestBreathalyzer()
+
+    fun scanForDevicesAsync(timeout: Long, scope: CoroutineScope): Deferred<List<BACtrackAPI.BACtrackDevice>> {
+        return scope.async {
+            bacTrackSdk?.startScan()
+            delay(timeout)
+            return@async listOf(*bacTrackSdk?.stopScan()?.toTypedArray() ?: arrayOf())
+        }
+    }
+}
+
 enum class SdkErrors(val errorCode: Byte) {
     TIME_OUT(1),
     BLOW_ERROR(2),
@@ -109,5 +298,4 @@ enum class SdkErrors(val errorCode: Byte) {
     }
 }
 
-@Suppress("unused")
 fun BACtrackAPI.BACtrackDevice.readableToString(): String = "BACtrackDevice(device: ${this.device}, rssi: ${this.rssi}, services: ${this.services}, type: ${this.type})"
