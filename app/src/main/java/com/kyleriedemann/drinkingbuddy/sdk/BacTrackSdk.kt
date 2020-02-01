@@ -253,14 +253,6 @@ class BacTrackSdk(
     val isConnected = bacTrackSdk?.isConnected ?: false
 
     fun connectToClosestDevice() = bacTrackSdk?.connectToNearestBreathalyzer()
-
-    fun scanForDevicesAsync(timeout: Long, scope: CoroutineScope): Deferred<List<BACtrackAPI.BACtrackDevice>> {
-        return scope.async {
-            bacTrackSdk?.startScan()
-            delay(timeout)
-            return@async listOf(*bacTrackSdk?.stopScan()?.toTypedArray() ?: arrayOf())
-        }
-    }
 }
 
 enum class SdkErrors(val errorCode: Byte) {

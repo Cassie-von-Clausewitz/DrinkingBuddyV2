@@ -3,4 +3,10 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+
+    <string name="permissions_title">Permissions Required</string>
+    <string name="permissions_denied">This app needs bluetooth and location permissions to communicate to devices.</string>
+    <string name="permissions_denied_forever">This app has no functionality without permissions. Please go to settings to grant permissions before attempting to use the app.</string>
+    <string name="permissions_rational">Bluetooth and location permissions are used to find and communicate with devices. The app serves no purpose without these permissions.</string>
+    <string name="ok">OK</string>
 </resources>
