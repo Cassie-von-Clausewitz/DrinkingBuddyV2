@@ -97,7 +97,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$archLifecycleVersion"
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
-    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$archSavedStateVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$archLifecycleVersion"
 
     // Dependencies for local unit tests
     testImplementation "junit:junit:$junitVersion"
