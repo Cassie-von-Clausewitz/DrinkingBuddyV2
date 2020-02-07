@@ -28,9 +28,9 @@ object ApplicationModule {
     @JvmStatic
     @Singleton
     @Provides
-    fun providesDatabase(context: Context): DrinkingBuddyDb {
+    fun providesDatabase(application: Application): DrinkingBuddyDb {
         return Room.databaseBuilder(
-            context.applicationContext,
+            application,
             DrinkingBuddyDb::class.java,
             "DrinkingBuddy.db"
         ).build()

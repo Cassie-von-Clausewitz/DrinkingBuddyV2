@@ -13,8 +13,12 @@ import BACtrackAPI.Exceptions.LocationServicesNotEnabledException
 import android.app.Application
 import android.content.Context
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.Channel
 import timber.log.Timber
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
+import com.kyleriedemann.drinkingbuddy.data.Result
+import com.kyleriedemann.drinkingbuddy.data.Result.Success
+import com.kyleriedemann.drinkingbuddy.data.Result.Error
 
 /**
  * Created by kyle
@@ -229,7 +233,8 @@ class BacTrackSdk(
     private val application: Application,
     private val apiKey: String,
     callbacks: BACtrackDefaultCallbacks = BACtrackDefaultCallbacks(),
-    private val fullCallbacksCallbacks: BacTrackFullCallbacks = BacTrackFullCallbacks()
+    private val fullCallbacksCallbacks: BacTrackFullCallbacks = BacTrackFullCallbacks(),
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     init {
         fullCallbacksCallbacks.foldInDefaultCallbacks(callbacks)
@@ -253,6 +258,20 @@ class BacTrackSdk(
     val isConnected = bacTrackSdk?.isConnected ?: false
 
     fun connectToClosestDevice() = bacTrackSdk?.connectToNearestBreathalyzer()
+
+    suspend fun connectToClosestDeviceAsync() = withContext(ioDispatcher) {
+        suspendCoroutine<Result<Unit>> {
+            val connected = { _: BACTrackDeviceType ->
+                it.resume(Success(Unit))
+            }
+            val connectionError = {
+                it.resume(Error(Exception("Failed to connect")))
+            }
+            fullCallbacksCallbacks.connectedCallbacks.add(connected)
+            fullCallbacksCallbacks.connectionErrorCallbacks.add(connectionError)
+            bacTrackSdk?.connectToNearestBreathalyzer()
+        }
+    }
 }
 
 enum class SdkErrors(val errorCode: Byte) {
