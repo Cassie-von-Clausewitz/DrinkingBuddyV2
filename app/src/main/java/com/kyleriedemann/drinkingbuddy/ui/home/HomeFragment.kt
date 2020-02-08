@@ -2,6 +2,10 @@ package com.kyleriedemann.drinkingbuddy.ui.home
 
 import android.Manifest
 import android.app.AlertDialog
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.annotation.StringRes
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
@@ -10,6 +14,7 @@ import com.eazypermissions.common.model.PermissionResult
 import com.eazypermissions.livedatapermission.PermissionManager
 import com.kyleriedemann.drinkingbuddy.R
 import com.kyleriedemann.drinkingbuddy.common.ui.BaseFragment
+import com.kyleriedemann.drinkingbuddy.data.Result
 import com.kyleriedemann.drinkingbuddy.databinding.FragmentHomeBinding
 import timber.log.Timber
 

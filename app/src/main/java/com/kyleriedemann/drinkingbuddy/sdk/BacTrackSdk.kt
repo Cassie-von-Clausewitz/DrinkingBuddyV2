@@ -11,7 +11,8 @@ import BACtrackAPI.Exceptions.BluetoothLENotSupportedException
 import BACtrackAPI.Exceptions.BluetoothNotEnabledException
 import BACtrackAPI.Exceptions.LocationServicesNotEnabledException
 import android.app.Application
-import android.content.Context
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
 import timber.log.Timber
 import kotlin.coroutines.resume
@@ -19,6 +20,11 @@ import kotlin.coroutines.suspendCoroutine
 import com.kyleriedemann.drinkingbuddy.data.Result
 import com.kyleriedemann.drinkingbuddy.data.Result.Success
 import com.kyleriedemann.drinkingbuddy.data.Result.Error
+import kotlinx.coroutines.channels.produce
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.resumeWithException
 
 /**
  * Created by kyle
@@ -229,22 +235,24 @@ class BacTrackFullCallbacks(
     }
 }
 
+typealias DeviceType = BACTrackDeviceType
+
 class BacTrackSdk(
     private val application: Application,
     private val apiKey: String,
     callbacks: BACtrackDefaultCallbacks = BACtrackDefaultCallbacks(),
-    private val fullCallbacksCallbacks: BacTrackFullCallbacks = BacTrackFullCallbacks(),
+    private val fullCallbacks: BacTrackFullCallbacks = BacTrackFullCallbacks(),
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     init {
-        fullCallbacksCallbacks.foldInDefaultCallbacks(callbacks)
+        fullCallbacks.foldInDefaultCallbacks(callbacks)
     }
 
     private var bacTrackSdk: BACtrackAPI? = null
 
     fun start() {
         try {
-            bacTrackSdk = BACtrackAPI(application, fullCallbacksCallbacks, apiKey)
+            bacTrackSdk = BACtrackAPI(application, fullCallbacks, apiKey)
             bacTrackSdk?.breathalyzerBatteryVoltage
         } catch (t: BluetoothLENotSupportedException) {
             Timber.e("BLE not supported")
@@ -257,22 +265,94 @@ class BacTrackSdk(
 
     val isConnected = bacTrackSdk?.isConnected ?: false
 
-    fun connectToClosestDevice() = bacTrackSdk?.connectToNearestBreathalyzer()
-
     suspend fun connectToClosestDeviceAsync() = withContext(ioDispatcher) {
-        suspendCoroutine<Result<Unit>> {
-            val connected = { _: BACTrackDeviceType ->
-                it.resume(Success(Unit))
+        suspendCoroutine<DeviceType> {
+            it.errorIfSdkNotInitialized()
+
+            fullCallbacks.connectedCallbacks.add { deviceType: DeviceType ->
+                it.resume(deviceType)
             }
-            val connectionError = {
-                it.resume(Error(Exception("Failed to connect")))
+            fullCallbacks.connectionErrorCallbacks.add {
+                it.resumeWithConnectionError()
             }
-            fullCallbacksCallbacks.connectedCallbacks.add(connected)
-            fullCallbacksCallbacks.connectionErrorCallbacks.add(connectionError)
+
             bacTrackSdk?.connectToNearestBreathalyzer()
         }
     }
+
+    suspend fun getSerialNumberAsync() = withContext(ioDispatcher) {
+        suspendCoroutine<String> {
+            it.errorIfSdkNotInitialized()
+
+            fullCallbacks.serialCallbacks.add { serial ->
+                it.resume(serial)
+            }
+
+            fullCallbacks.connectionErrorCallbacks.add {
+                it.resumeWithConnectionError()
+            }
+
+            fullCallbacks.disconnectedCallbacks.add {
+                it.resumeWithConnectionError()
+            }
+
+            bacTrackSdk?.serialNumber
+        }
+    }
+
+    suspend fun getFirmwareVersionAsync() = withContext(ioDispatcher) {
+        suspendCoroutine<String> {
+            it.errorIfSdkNotInitialized()
+
+            fullCallbacks.firmwareVersionCallbacks.add { firmware ->
+                it.resume(firmware)
+            }
+
+            fullCallbacks.connectionErrorCallbacks.add {
+                it.resumeWithConnectionError()
+            }
+
+            fullCallbacks.disconnectedCallbacks.add {
+                it.resumeWithConnectionError()
+            }
+
+            bacTrackSdk?.firmwareVersion
+        }
+    }
+
+    suspend fun readingFlow() = flow {
+        fullCallbacks.countdownCallbacks.add {
+            runBlocking {
+                emit("Countdown: $it")
+            }
+        }
+
+        fullCallbacks.analyzingCallbacks.add {
+            runBlocking {
+                emit("Analyzing")
+            }
+        }
+
+        fullCallbacks.resultsCallbacks.add {
+            runBlocking {
+                emit("Reading: $it")
+            }
+        }
+
+        bacTrackSdk?.startCountdown()
+    }.flowOn(ioDispatcher)
+
+    private fun <T> Continuation<T>.errorIfSdkNotInitialized() {
+        if (bacTrackSdk == null) this.resumeWithException(SdkNotInitialized())
+    }
+
+    private fun <T> Continuation<T>.resumeWithConnectionError() {
+        this.resumeWithException(SdkConnectionError())
+    }
 }
+
+class SdkNotInitialized: Exception("SDK was not initialized before use")
+class SdkConnectionError: Exception("SDK connection error")
 
 enum class SdkErrors(val errorCode: Byte) {
     TIME_OUT(1),
