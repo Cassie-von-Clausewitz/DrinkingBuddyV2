@@ -1,5 +1,6 @@
 package com.kyleriedemann.drinkingbuddy.data.source.local
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
 
@@ -10,8 +11,16 @@ interface NotificationDao {
      *
      * @return all notifications
      */
-    @Query("SELECT * FROM Notifications ORDER BY datetime(datetime)")
+    @Query("SELECT * FROM Notifications ORDER BY datetime(datetime) DESC")
     suspend fun getNotifications(): List<Notification>
+
+    /**
+     * Select live notifications from the table, ordered by datetime
+     *
+     * @return all notifications
+     */
+    @Query("SELECT * FROM Notifications ORDER BY datetime(datetime) DESC")
+    fun getLiveNotifications(): LiveData<List<Notification>>
 
     /**
      * Select a notification by its ID

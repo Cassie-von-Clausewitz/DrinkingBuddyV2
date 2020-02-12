@@ -1,10 +1,13 @@
 package com.kyleriedemann.drinkingbuddy.data.source
 
+import androidx.lifecycle.LiveData
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
 import javax.inject.Inject
 
 class DefaultNotificationRepository @Inject constructor(private val notificationDataSource: NotificationDataSource): NotificationRepository {
     override suspend fun getNotifications() = notificationDataSource.getNotifications()
+
+    override fun getLiveNotifications(): LiveData<List<Notification>> = notificationDataSource.getNotificationsLive()
 
     override suspend fun getNotificationById(notificationId: String) = notificationDataSource.getNotificationById(notificationId)
 

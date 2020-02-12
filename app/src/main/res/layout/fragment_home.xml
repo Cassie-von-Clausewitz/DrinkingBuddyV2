@@ -41,7 +41,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/text_home"/>
+            app:layout_constraintTop_toBottomOf="@+id/text_home"
+            app:layout_constraintVertical_bias="0.25"/>
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/serial_button"
@@ -65,7 +66,17 @@
             android:text="Get firmware version"
             app:layout_constraintTop_toBottomOf="@+id/connect_button"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:onClick="@{ () -> viewModel.sendWelcomeNotification() }"
+            android:text="Send welcome notification"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteX="16dp"/>
+            app:layout_constraintTop_toBottomOf="@+id/serial_button"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

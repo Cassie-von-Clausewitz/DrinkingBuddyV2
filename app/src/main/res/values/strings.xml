@@ -11,4 +11,7 @@
     <string name="ok">OK</string>
 
     <string name="no_notifications">No Notifications</string>
+
+    <string name="welcome_title">Welcome!</string>
+    <string name="welcome_message">Connect a device to start taking readings.</string>
 </resources>

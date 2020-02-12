@@ -10,13 +10,14 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import kotlinx.coroutines.launch
 
+// todo get rid of refresh here and make these local only
 class NotificationsViewModel @AssistedInject constructor(
     @Assisted private val handle: SavedStateHandle,
     private val notificationsRepository: NotificationRepository
 ): ViewModel() {
 
     private val _items = MutableLiveData<List<Notification>>().apply { value = emptyList() }
-    val items: LiveData<List<Notification>> = _items
+    val items: LiveData<List<Notification>> = notificationsRepository.getLiveNotifications()
 
     private val _loading = MutableLiveData<Boolean>(false)
     val loading: LiveData<Boolean> = _loading

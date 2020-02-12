@@ -1,11 +1,14 @@
 package com.kyleriedemann.drinkingbuddy.data.source
 
+import androidx.lifecycle.LiveData
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
 import com.kyleriedemann.drinkingbuddy.data.models.Reading
 import com.kyleriedemann.drinkingbuddy.data.Result
 
 interface NotificationDataSource {
     suspend fun getNotifications(): Result<List<Notification>>
+
+    fun getNotificationsLive(): LiveData<List<Notification>>
 
     suspend fun getNotificationById(notificationId: String): Result<Notification>
 

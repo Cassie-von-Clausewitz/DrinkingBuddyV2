@@ -1,5 +1,6 @@
 package com.kyleriedemann.drinkingbuddy.data.source.local
 
+import androidx.lifecycle.LiveData
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
 import com.kyleriedemann.drinkingbuddy.data.source.NotificationDataSource
 import kotlinx.coroutines.CoroutineDispatcher
@@ -19,6 +20,8 @@ class NotificationLocalDataSource internal constructor(
             Error(e)
         }
     }
+
+    override fun getNotificationsLive(): LiveData<List<Notification>> = notificationDao.getLiveNotifications()
 
     override suspend fun getNotificationById(notificationId: String) = withContext(ioDispatcher) {
         try {

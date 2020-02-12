@@ -15,6 +15,7 @@
         android:id="@+id/refresh_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingBottom="@dimen/bottom_nav_height"
         app:onRefreshListener="@{() -> viewModel.refresh()}"
         app:refreshing="@{viewModel.loading}">
 

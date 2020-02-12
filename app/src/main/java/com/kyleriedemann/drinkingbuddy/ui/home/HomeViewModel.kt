@@ -30,22 +30,35 @@ class HomeViewModel @AssistedInject constructor (
 
     fun connectToClosestDeviceAsync() = viewModelScope.launch {
         try {
+            _text.postValue("Connecting to device...")
             val deviceType = sdk.connectToClosestDeviceAsync()
             _text.postValue("Connected to device type $deviceType")
             notificationRepository.insertNotification(Notification("Device Connected", "$deviceType"))
         } catch (e: Exception) {
-            _text.postValue(e.message)
+            displayException(e)
         }
     }
 
     fun getDeviceFirmware() = viewModelScope.launch {
-        val firmwareVersion = sdk.getFirmwareVersionAsync()
-        notificationRepository.insertNotification(Notification("Firmware Version", firmwareVersion))
+        try {
+            _text.postValue("Reading firmware...")
+            val firmwareVersion = sdk.getFirmwareVersionAsync()
+            _text.postValue("Firmware: $firmwareVersion")
+            notificationRepository.insertNotification(Notification("Firmware Version", firmwareVersion))
+        } catch (e: Exception) {
+            displayException(e)
+        }
     }
 
     fun getSerialNumber() = viewModelScope.launch {
-        val serialNumber = sdk.getSerialNumberAsync()
-        notificationRepository.insertNotification(Notification("Serial Number", serialNumber))
+        try {
+            _text.postValue("Reading serial number...")
+            val serialNumber = sdk.getSerialNumberAsync()
+            _text.postValue("Serial: $serialNumber")
+            notificationRepository.insertNotification(Notification("Serial Number", serialNumber))
+        } catch (e: Exception) {
+            displayException(e)
+        }
     }
 
     fun takeReading() = viewModelScope.launch {
@@ -55,6 +68,14 @@ class HomeViewModel @AssistedInject constructor (
                 return@collect
             }
         }
+    }
+
+    private fun displayException(e: Exception) {
+        _text.postValue(e.message)
+    }
+
+    fun sendWelcomeNotification() = viewModelScope.launch {
+        notificationRepository.insertNotification(Notification(title = "Welcome!", message = "Connect a device to start taking readings."))
     }
 
     @AssistedInject.Factory
