@@ -172,4 +172,7 @@ dependencies {
     debugImplementation 'com.facebook.soloader:soloader:0.8.0'
 
     releaseImplementation 'com.facebook.flipper:flipper-noop:0.31.1'
+
+    // reactive style extensions on live data
+    implementation 'com.snakydesign.livedataextensions:lives:1.3.0'
 }

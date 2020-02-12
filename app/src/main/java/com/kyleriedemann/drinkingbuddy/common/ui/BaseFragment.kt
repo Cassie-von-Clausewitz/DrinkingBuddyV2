@@ -38,7 +38,7 @@ abstract class BaseFragment<V: ViewModel, B: ViewDataBinding> : DaggerFragment()
         showError(error.message ?: "")
     }
 
-    private fun showError(message: String) {
+    fun showError(message: String) {
         errorSnackBar = Snackbar.make(binding.root, message, Snackbar.LENGTH_INDEFINITE).apply {
             show()
         }

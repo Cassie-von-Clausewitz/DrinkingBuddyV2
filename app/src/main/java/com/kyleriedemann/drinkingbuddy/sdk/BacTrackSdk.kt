@@ -11,16 +11,14 @@ import BACtrackAPI.Exceptions.BluetoothLENotSupportedException
 import BACtrackAPI.Exceptions.BluetoothNotEnabledException
 import BACtrackAPI.Exceptions.LocationServicesNotEnabledException
 import android.app.Application
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.*
+import com.snakydesign.livedataextensions.map
+import com.snakydesign.livedataextensions.merge
+import com.snakydesign.livedataextensions.mergeWith
 import kotlinx.coroutines.*
 import timber.log.Timber
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
-import com.kyleriedemann.drinkingbuddy.data.Result
-import com.kyleriedemann.drinkingbuddy.data.Result.Success
-import com.kyleriedemann.drinkingbuddy.data.Result.Error
-import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlin.coroutines.Continuation
@@ -235,7 +233,486 @@ class BacTrackFullCallbacks(
     }
 }
 
+interface ListCallbacks {
+    val apikeyAcceptedCallbacks: MutableList<BacAPIKeyAuthorized>
+    val apiKeyDeclinedCallbacks: MutableList<BacAPIKeyDeclined>
+    val connectedCallbacks: MutableList<BacConnected>
+    val didConnectCallbacks: MutableList<BacDidConnect>
+    val disconnectedCallbacks: MutableList<BacDisconnected>
+    val connectionTimeoutCallbacks: MutableList<BacConnectionTimeout>
+    val foundBreathalyzerCallbacks: MutableList<BacFoundBreathalyzer>
+    val countdownCallbacks: MutableList<BacCountdown>
+    val startCallbacks: MutableList<BacStart>
+    val blowCallbacks: MutableList<BacBlow>
+    val analyzingCallbacks: MutableList<BacAnalyzing>
+    val resultsCallbacks: MutableList<BacResults>
+    val firmwareVersionCallbacks: MutableList<BacFirmwareVersion>
+    val serialCallbacks: MutableList<BacSerial>
+    val useCountCallbacks: MutableList<BacUseCount>
+    val batteryVoltageCallbacks: MutableList<BacBatteryVoltage>
+    val batteryLevelCallbacks: MutableList<BacBatteryLevel>
+    val errorCallbacks: MutableList<BacError>
+    val unitsCallbacks: MutableList<BacUnits>
+    val onStateActiveCallbacks: MutableList<BacOnStateActive>
+    val calibrationResultsCallbacks: MutableList<BacCalibrationResults>
+    val connectionErrorCallbacks: MutableList<BacConnectionError>
+    val breathalysersNotFoundCallbacks: MutableList<BaaBreathalysersNotFound>
+    val transmitPowerCallbacks: MutableList<BacTransmitPower>
+    val protectionBitCallbacks: MutableList<BacProtectionBit>
+    val onStateIdleCallbacks: MutableList<BacOnStateIdle>
+}
+
+sealed class ApiKeyEvents {
+    object Accepted: ApiKeyEvents()
+    class Declined(val message: String): ApiKeyEvents()
+}
+
+sealed class ConnectedEvents {
+    class FoundDevice(val device: Device): ConnectedEvents()
+    class Connected(val deviceType: DeviceType): ConnectedEvents()
+    class DidConnect(val message: String): ConnectedEvents()
+    object Disconnected: ConnectedEvents()
+    object Timeout: ConnectedEvents()
+    object NoDevicesFound: ConnectedEvents()
+    object ConnectionError: ConnectedEvents()
+}
+
+sealed class ReadingEvents {
+    object Start: ReadingEvents()
+    class Countdown(val count: Int): ReadingEvents()
+    object Blow: ReadingEvents()
+    object Analyzing: ReadingEvents()
+    class Result(val reading: Float): ReadingEvents()
+}
+
+sealed class DeviceInformationEvents {
+    class Firmware(val firmware: String): DeviceInformationEvents()
+    class Serial(val serial: String): DeviceInformationEvents()
+    class UseCount(val uses: Int): DeviceInformationEvents()
+    class BatteryVoltage(val voltage: Float): DeviceInformationEvents()
+    class BatteryLevel(val level: Int): DeviceInformationEvents()
+    class Units(val units: BACtrackUnit): DeviceInformationEvents()
+    class CalibrationResults(val calibrationResults: ByteArray): DeviceInformationEvents()
+    class TransmitPower(val transmitPower: Byte): DeviceInformationEvents()
+    class ProtectionBit(val protectionBit: ByteArray): DeviceInformationEvents()
+}
+
+sealed class StateEvents {
+    object Active: StateEvents()
+    object Idle: StateEvents()
+}
+
+class LiveDataCallbacks: BACtrackAPICallbacksFull {
+    //<editor-fold desc="Errors Events">
+    private val _errorLiveData = MutableLiveData<Int>()
+    val errorLiveData: LiveData<SdkErrors> = _errorLiveData.map {
+        SdkErrors.fromInt(it)
+    }
+    override fun BACtrackError(errorCode: Int) = _errorLiveData.postValue(errorCode)
+    //</editor-fold>
+
+    //<editor-fold desc="Api Key Events">
+    private val _apikeyAcceptedLiveData = MutableLiveData<Unit>()
+    val apiKeyAcceptedLiveData: LiveData<ApiKeyEvents> = _apikeyAcceptedLiveData.map {
+        ApiKeyEvents.Accepted
+    }
+    override fun BACtrackAPIKeyDeclined(errorMessage: String) = _apiKeyDeclinedLiveData.postValue(errorMessage)
+
+    private val _apiKeyDeclinedLiveData = MutableLiveData<String>()
+    val apiKeyDeclinedLiveData: LiveData<ApiKeyEvents> = _apiKeyDeclinedLiveData.map {
+        ApiKeyEvents.Declined(it)
+    }
+    override fun BACtrackAPIKeyAuthorized() = _apikeyAcceptedLiveData.postValue(Unit)
+
+    val apiKeyLiveData = apiKeyAcceptedLiveData.mergeWith(apiKeyDeclinedLiveData)
+    //</editor-fold>
+
+    //<editor-fold desc="Connected Events">
+    private val _foundBreathalyzerLiveData = MutableLiveData<Device>()
+    val foundBreathalyzerLiveData: LiveData<ConnectedEvents> = _foundBreathalyzerLiveData.map {
+        ConnectedEvents.FoundDevice(it)
+    }
+    override fun BACtrackFoundBreathalyzer(device: BACtrackAPI.BACtrackDevice) = _foundBreathalyzerLiveData.postValue(device)
+
+    private val _connectedLiveData = MutableLiveData<DeviceType>()
+    val connectedLiveData: LiveData<ConnectedEvents> = _connectedLiveData.map {
+        ConnectedEvents.Connected(it)
+    }
+    override fun BACtrackConnected(deviceType: BACTrackDeviceType) = _connectedLiveData.postValue(deviceType)
+
+    private val _didConnectLiveData = MutableLiveData<String>()
+    val didConnectLiveData: LiveData<ConnectedEvents> = _didConnectLiveData.map {
+        ConnectedEvents.DidConnect(it)
+    }
+    override fun BACtrackDidConnect(message: String) = _didConnectLiveData.postValue(message)
+
+    private val _disconnectedLiveData = MutableLiveData<Unit>()
+    val disconnectedLiveData: LiveData<ConnectedEvents> = _disconnectedLiveData.map {
+        ConnectedEvents.Disconnected
+    }
+    override fun BACtrackDisconnected() = _disconnectedLiveData.postValue(Unit)
+
+    private val _connectionTimeoutLiveData = MutableLiveData<Unit>()
+    val connectionTimeoutLiveData: LiveData<ConnectedEvents> = _connectionTimeoutLiveData.map {
+        ConnectedEvents.Timeout
+    }
+    override fun BACtrackConnectionTimeout() = _connectionTimeoutLiveData.postValue(Unit)
+
+    private val _breathalysersNotFoundLiveData = MutableLiveData<Unit>()
+    val breathalysersNotFoundLiveData: LiveData<ConnectedEvents> = _breathalysersNotFoundLiveData.map {
+        ConnectedEvents.NoDevicesFound
+    }
+    override fun BACtrackNoBreathalyzersFound() = _breathalysersNotFoundLiveData.postValue(Unit)
+
+    private val _connectionErrorLiveData = MutableLiveData<Unit>()
+    val connectionErrorLiveData: LiveData<ConnectedEvents> = _connectionErrorLiveData.map {
+        ConnectedEvents.ConnectionError
+    }
+    override fun BACtrackConnectionError() = _connectionErrorLiveData.postValue(Unit)
+
+    val connectedEvents = merge(listOf(
+        foundBreathalyzerLiveData,
+        connectedLiveData,
+        didConnectLiveData,
+        disconnectedLiveData,
+        connectionTimeoutLiveData,
+        breathalysersNotFoundLiveData,
+        connectionErrorLiveData
+    ))
+    //</editor-fold>
+
+    //<editor-fold desc="Reading Events">
+    private val _startLiveData = MutableLiveData<Unit>()
+    val startLiveData: LiveData<ReadingEvents> = _startLiveData.map {
+        ReadingEvents.Start
+    }
+    override fun BACtrackStart() = _startLiveData.postValue(Unit)
+
+    private val _countdownLiveData = MutableLiveData<Int>()
+    val countdownLiveData: LiveData<ReadingEvents> = _countdownLiveData.map {
+        ReadingEvents.Countdown(it)
+    }
+    override fun BACtrackCountdown(count: Int) = _countdownLiveData.postValue(count)
+
+    private val _blowLiveData = MutableLiveData<Unit>()
+    val blowLiveData: LiveData<ReadingEvents> = _blowLiveData.map {
+        ReadingEvents.Blow
+    }
+    override fun BACtrackBlow() = _blowLiveData.postValue(Unit)
+
+    private val _analyzingLiveData = MutableLiveData<Unit>()
+    val analyzingLiveData: LiveData<ReadingEvents> = _analyzingLiveData.map {
+        ReadingEvents.Analyzing
+    }
+    override fun BACtrackAnalyzing() = _analyzingLiveData.postValue(Unit)
+
+    private val _resultsLiveData = MutableLiveData<Float>()
+    val resultsLiveData: LiveData<ReadingEvents> = _resultsLiveData.map {
+        ReadingEvents.Result(it)
+    }
+    override fun BACtrackResults(measuredBac: Float) = _resultsLiveData.postValue(measuredBac)
+
+    val readingEvents = merge(listOf(
+        startLiveData,
+        countdownLiveData,
+        blowLiveData,
+        analyzingLiveData,
+        resultsLiveData
+    ))
+    //</editor-fold>
+
+    //<editor-fold desc="Device Information Events">
+    private val _firmwareVersionLiveData = MutableLiveData<String>()
+    val firmwareVersionLiveData: LiveData<DeviceInformationEvents> = _firmwareVersionLiveData.map {
+        DeviceInformationEvents.Firmware(it)
+    }
+    override fun BACtrackFirmwareVersion(version: String) = _firmwareVersionLiveData.postValue(version)
+
+    private val _serialLiveData = MutableLiveData<String>()
+    val serialLiveData: LiveData<DeviceInformationEvents> = _serialLiveData.map {
+        DeviceInformationEvents.Serial(it)
+    }
+    override fun BACtrackSerial(serialHex: String) = _serialLiveData.postValue(serialHex)
+
+    private val _useCountLiveData = MutableLiveData<Int>()
+    val useCountLiveData: LiveData<DeviceInformationEvents> = _useCountLiveData.map {
+        DeviceInformationEvents.UseCount(it)
+    }
+    override fun BACtrackUseCount(useCount: Int) = _useCountLiveData.postValue(useCount)
+
+    private val _batteryVoltageLiveData = MutableLiveData<Float>()
+    val batteryVoltageLiveData: LiveData<DeviceInformationEvents> = _batteryVoltageLiveData.map {
+        DeviceInformationEvents.BatteryVoltage(it)
+    }
+    override fun BACtrackBatteryVoltage(voltage: Byte) = _batteryVoltageLiveData.postValue(voltage.toFloat())
+
+    private val _batteryLevelLiveData = MutableLiveData<Int>()
+    val batteryLevelLiveData: LiveData<DeviceInformationEvents> = _batteryLevelLiveData.map {
+        DeviceInformationEvents.BatteryLevel(it)
+    }
+    override fun BACtrackBatteryLevel(level: Int) = _batteryLevelLiveData.postValue(level)
+
+    private val _unitsLiveData = MutableLiveData<BACtrackUnit>()
+    val unitsLiveData: LiveData<DeviceInformationEvents> = _unitsLiveData.map {
+        DeviceInformationEvents.Units(it)
+    }
+    override fun BACtrackUnits(unit: BACtrackUnit) = _unitsLiveData.postValue(unit)
+
+    private val _calibrationResultsLiveData = MutableLiveData<ByteArray>()
+    val calibrationResultsLiveData: LiveData<DeviceInformationEvents> = _calibrationResultsLiveData.map {
+        DeviceInformationEvents.CalibrationResults(it)
+    }
+    override fun BACtrackCalibrationResults(calibrationResults: ByteArray) = _calibrationResultsLiveData.postValue(calibrationResults)
+
+    private val _transmitPowerLiveData = MutableLiveData<Byte>()
+    val transmitPowerLiveData: LiveData<DeviceInformationEvents> = _transmitPowerLiveData.map {
+        DeviceInformationEvents.TransmitPower(it)
+    }
+    override fun BACtrackTransmitPower(power: Byte) = _transmitPowerLiveData.postValue(power)
+
+    private val _protectionBitLiveData = MutableLiveData<ByteArray>()
+    val protectionBitLiveData: LiveData<DeviceInformationEvents> = _protectionBitLiveData.map {
+        DeviceInformationEvents.ProtectionBit(it)
+    }
+    override fun BACtrackProtectionBit(protectionBit: ByteArray) = _protectionBitLiveData.postValue(protectionBit)
+
+    val deviceInformationEvents = merge(listOf(
+        firmwareVersionLiveData,
+        serialLiveData,
+        useCountLiveData,
+        batteryVoltageLiveData,
+        batteryLevelLiveData,
+        unitsLiveData,
+        calibrationResultsLiveData,
+        transmitPowerLiveData,
+        protectionBitLiveData
+    ))
+    //</editor-fold>
+
+    //<editor-fold desc="State Events">
+    private val _stateActiveLiveData = MutableLiveData<Unit>()
+    val stateActiveLiveData: LiveData<StateEvents> = _stateActiveLiveData.map {
+        StateEvents.Active
+    }
+    override fun BACtrackOnStateActive() = _stateActiveLiveData.postValue(Unit)
+
+    private val _stateIdleLiveData = MutableLiveData<Unit>()
+    val stateIdleLiveData: LiveData<StateEvents> = _stateIdleLiveData.map {
+        StateEvents.Idle
+    }
+    override fun BACtrackOnStateIdle() = _stateIdleLiveData.postValue(Unit)
+
+    val stateEvents = stateActiveLiveData.mergeWith(stateIdleLiveData)
+    //</editor-fold>
+}
+
+// todo use this as a template to convert this to flows
+class FlowCallbacks: BACtrackAPICallbacksFull {
+    //<editor-fold desc="Errors Events">
+    private val _errorLiveData = MutableLiveData<Int>()
+    val errorLiveData: LiveData<SdkErrors> = _errorLiveData.map {
+        SdkErrors.fromInt(it)
+    }
+    override fun BACtrackError(errorCode: Int) = _errorLiveData.postValue(errorCode)
+    //</editor-fold>
+
+    //<editor-fold desc="Api Key Events">
+    private val _apikeyAcceptedLiveData = MutableLiveData<Unit>()
+    val apiKeyAcceptedLiveData: LiveData<ApiKeyEvents> = _apikeyAcceptedLiveData.map {
+        ApiKeyEvents.Accepted
+    }
+    override fun BACtrackAPIKeyDeclined(errorMessage: String) = _apiKeyDeclinedLiveData.postValue(errorMessage)
+
+    private val _apiKeyDeclinedLiveData = MutableLiveData<String>()
+    val apiKeyDeclinedLiveData: LiveData<ApiKeyEvents> = _apiKeyDeclinedLiveData.map {
+        ApiKeyEvents.Declined(it)
+    }
+    override fun BACtrackAPIKeyAuthorized() = _apikeyAcceptedLiveData.postValue(Unit)
+
+    val apiKeyLiveData = apiKeyAcceptedLiveData.mergeWith(apiKeyDeclinedLiveData)
+    //</editor-fold>
+
+    //<editor-fold desc="Connected Events">
+    private val _foundBreathalyzerLiveData = MutableLiveData<Device>()
+    val foundBreathalyzerLiveData: LiveData<ConnectedEvents> = _foundBreathalyzerLiveData.map {
+        ConnectedEvents.FoundDevice(it)
+    }
+    override fun BACtrackFoundBreathalyzer(device: BACtrackAPI.BACtrackDevice) = _foundBreathalyzerLiveData.postValue(device)
+
+    private val _connectedLiveData = MutableLiveData<DeviceType>()
+    val connectedLiveData: LiveData<ConnectedEvents> = _connectedLiveData.map {
+        ConnectedEvents.Connected(it)
+    }
+    override fun BACtrackConnected(deviceType: BACTrackDeviceType) = _connectedLiveData.postValue(deviceType)
+
+    private val _didConnectLiveData = MutableLiveData<String>()
+    val didConnectLiveData: LiveData<ConnectedEvents> = _didConnectLiveData.map {
+        ConnectedEvents.DidConnect(it)
+    }
+    override fun BACtrackDidConnect(message: String) = _didConnectLiveData.postValue(message)
+
+    private val _disconnectedLiveData = MutableLiveData<Unit>()
+    val disconnectedLiveData: LiveData<ConnectedEvents> = _disconnectedLiveData.map {
+        ConnectedEvents.Disconnected
+    }
+    override fun BACtrackDisconnected() = _disconnectedLiveData.postValue(Unit)
+
+    private val _connectionTimeoutLiveData = MutableLiveData<Unit>()
+    val connectionTimeoutLiveData: LiveData<ConnectedEvents> = _connectionTimeoutLiveData.map {
+        ConnectedEvents.Timeout
+    }
+    override fun BACtrackConnectionTimeout() = _connectionTimeoutLiveData.postValue(Unit)
+
+    private val _breathalysersNotFoundLiveData = MutableLiveData<Unit>()
+    val breathalysersNotFoundLiveData: LiveData<ConnectedEvents> = _breathalysersNotFoundLiveData.map {
+        ConnectedEvents.NoDevicesFound
+    }
+    override fun BACtrackNoBreathalyzersFound() = _breathalysersNotFoundLiveData.postValue(Unit)
+
+    private val _connectionErrorLiveData = MutableLiveData<Unit>()
+    val connectionErrorLiveData: LiveData<ConnectedEvents> = _connectionErrorLiveData.map {
+        ConnectedEvents.ConnectionError
+    }
+    override fun BACtrackConnectionError() = _connectionErrorLiveData.postValue(Unit)
+
+    val connectedEvents = merge(listOf(
+        foundBreathalyzerLiveData,
+        connectedLiveData,
+        didConnectLiveData,
+        disconnectedLiveData,
+        connectionTimeoutLiveData,
+        breathalysersNotFoundLiveData,
+        connectionErrorLiveData
+    ))
+    //</editor-fold>
+
+    //<editor-fold desc="Reading Events">
+    private val _startLiveData = MutableLiveData<Unit>()
+    val startLiveData: LiveData<ReadingEvents> = _startLiveData.map {
+        ReadingEvents.Start
+    }
+    override fun BACtrackStart() = _startLiveData.postValue(Unit)
+
+    private val _countdownLiveData = MutableLiveData<Int>()
+    val countdownLiveData: LiveData<ReadingEvents> = _countdownLiveData.map {
+        ReadingEvents.Countdown(it)
+    }
+    override fun BACtrackCountdown(count: Int) = _countdownLiveData.postValue(count)
+
+    private val _blowLiveData = MutableLiveData<Unit>()
+    val blowLiveData: LiveData<ReadingEvents> = _blowLiveData.map {
+        ReadingEvents.Blow
+    }
+    override fun BACtrackBlow() = _blowLiveData.postValue(Unit)
+
+    private val _analyzingLiveData = MutableLiveData<Unit>()
+    val analyzingLiveData: LiveData<ReadingEvents> = _analyzingLiveData.map {
+        ReadingEvents.Analyzing
+    }
+    override fun BACtrackAnalyzing() = _analyzingLiveData.postValue(Unit)
+
+    private val _resultsLiveData = MutableLiveData<Float>()
+    val resultsLiveData: LiveData<ReadingEvents> = _resultsLiveData.map {
+        ReadingEvents.Result(it)
+    }
+    override fun BACtrackResults(measuredBac: Float) = _resultsLiveData.postValue(measuredBac)
+
+    val readingEvents = merge(listOf(
+        startLiveData,
+        countdownLiveData,
+        blowLiveData,
+        analyzingLiveData,
+        resultsLiveData
+    ))
+    //</editor-fold>
+
+    //<editor-fold desc="Device Information Events">
+    private val _firmwareVersionLiveData = MutableLiveData<String>()
+    val firmwareVersionLiveData: LiveData<DeviceInformationEvents> = _firmwareVersionLiveData.map {
+        DeviceInformationEvents.Firmware(it)
+    }
+    override fun BACtrackFirmwareVersion(version: String) = _firmwareVersionLiveData.postValue(version)
+
+    private val _serialLiveData = MutableLiveData<String>()
+    val serialLiveData: LiveData<DeviceInformationEvents> = _serialLiveData.map {
+        DeviceInformationEvents.Serial(it)
+    }
+    override fun BACtrackSerial(serialHex: String) = _serialLiveData.postValue(serialHex)
+
+    private val _useCountLiveData = MutableLiveData<Int>()
+    val useCountLiveData: LiveData<DeviceInformationEvents> = _useCountLiveData.map {
+        DeviceInformationEvents.UseCount(it)
+    }
+    override fun BACtrackUseCount(useCount: Int) = _useCountLiveData.postValue(useCount)
+
+    private val _batteryVoltageLiveData = MutableLiveData<Float>()
+    val batteryVoltageLiveData: LiveData<DeviceInformationEvents> = _batteryVoltageLiveData.map {
+        DeviceInformationEvents.BatteryVoltage(it)
+    }
+    override fun BACtrackBatteryVoltage(voltage: Byte) = _batteryVoltageLiveData.postValue(voltage.toFloat())
+
+    private val _batteryLevelLiveData = MutableLiveData<Int>()
+    val batteryLevelLiveData: LiveData<DeviceInformationEvents> = _batteryLevelLiveData.map {
+        DeviceInformationEvents.BatteryLevel(it)
+    }
+    override fun BACtrackBatteryLevel(level: Int) = _batteryLevelLiveData.postValue(level)
+
+    private val _unitsLiveData = MutableLiveData<BACtrackUnit>()
+    val unitsLiveData: LiveData<DeviceInformationEvents> = _unitsLiveData.map {
+        DeviceInformationEvents.Units(it)
+    }
+    override fun BACtrackUnits(unit: BACtrackUnit) = _unitsLiveData.postValue(unit)
+
+    private val _calibrationResultsLiveData = MutableLiveData<ByteArray>()
+    val calibrationResultsLiveData: LiveData<DeviceInformationEvents> = _calibrationResultsLiveData.map {
+        DeviceInformationEvents.CalibrationResults(it)
+    }
+    override fun BACtrackCalibrationResults(calibrationResults: ByteArray) = _calibrationResultsLiveData.postValue(calibrationResults)
+
+    private val _transmitPowerLiveData = MutableLiveData<Byte>()
+    val transmitPowerLiveData: LiveData<DeviceInformationEvents> = _transmitPowerLiveData.map {
+        DeviceInformationEvents.TransmitPower(it)
+    }
+    override fun BACtrackTransmitPower(power: Byte) = _transmitPowerLiveData.postValue(power)
+
+    private val _protectionBitLiveData = MutableLiveData<ByteArray>()
+    val protectionBitLiveData: LiveData<DeviceInformationEvents> = _protectionBitLiveData.map {
+        DeviceInformationEvents.ProtectionBit(it)
+    }
+    override fun BACtrackProtectionBit(protectionBit: ByteArray) = _protectionBitLiveData.postValue(protectionBit)
+
+    val deviceInformationEvents = merge(listOf(
+        firmwareVersionLiveData,
+        serialLiveData,
+        useCountLiveData,
+        batteryVoltageLiveData,
+        batteryLevelLiveData,
+        unitsLiveData,
+        calibrationResultsLiveData,
+        transmitPowerLiveData,
+        protectionBitLiveData
+    ))
+    //</editor-fold>
+
+    //<editor-fold desc="State Events">
+    private val _stateActiveLiveData = MutableLiveData<Unit>()
+    val stateActiveLiveData: LiveData<StateEvents> = _stateActiveLiveData.map {
+        StateEvents.Active
+    }
+    override fun BACtrackOnStateActive() = _stateActiveLiveData.postValue(Unit)
+
+    private val _stateIdleLiveData = MutableLiveData<Unit>()
+    val stateIdleLiveData: LiveData<StateEvents> = _stateIdleLiveData.map {
+        StateEvents.Idle
+    }
+    override fun BACtrackOnStateIdle() = _stateIdleLiveData.postValue(Unit)
+
+    val stateEvents = stateActiveLiveData.mergeWith(stateIdleLiveData)
+    //</editor-fold>
+}
+
 typealias DeviceType = BACTrackDeviceType
+typealias Device = BACtrackAPI.BACtrackDevice
 
 class BacTrackSdk(
     private val application: Application,
@@ -248,12 +725,21 @@ class BacTrackSdk(
         fullCallbacks.foldInDefaultCallbacks(callbacks)
     }
 
-    private var bacTrackSdk: BACtrackAPI? = null
+    private var _bacTrackSdk: BACtrackAPI? = null
+
+    private val liveDataCallbacks = LiveDataCallbacks()
+
+    val errorEvents = liveDataCallbacks.errorLiveData
+    val apiKeyEvents = liveDataCallbacks.apiKeyLiveData
+    val connectedEvents = liveDataCallbacks.connectedEvents
+    val readingEvents = liveDataCallbacks.readingEvents
+    val deviceInformationEvents = liveDataCallbacks.deviceInformationEvents
+    val stateEvents = liveDataCallbacks.stateEvents
 
     fun start() {
         try {
-            bacTrackSdk = BACtrackAPI(application, fullCallbacks, apiKey)
-            bacTrackSdk?.breathalyzerBatteryVoltage
+            _bacTrackSdk = BACtrackAPI(application, liveDataCallbacks, apiKey)
+            _bacTrackSdk?.breathalyzerBatteryVoltage
         } catch (t: BluetoothLENotSupportedException) {
             Timber.e("BLE not supported")
         } catch (t: LocationServicesNotEnabledException) {
@@ -263,7 +749,16 @@ class BacTrackSdk(
         }
     }
 
-    val isConnected = bacTrackSdk?.isConnected ?: false
+    val isConnected = _bacTrackSdk?.isConnected ?: false
+
+    fun connectToClosestDevice() {
+        if (_bacTrackSdk == null) throw SdkNotInitialized()
+        _bacTrackSdk?.connectToNearestBreathalyzer()
+    }
+
+    fun takeReading() = throwIfNotInitialized {
+        _bacTrackSdk?.startCountdown()
+    }
 
     suspend fun connectToClosestDeviceAsync() = withContext(ioDispatcher) {
         suspendCoroutine<DeviceType> {
@@ -276,7 +771,7 @@ class BacTrackSdk(
                 it.resumeWithConnectionError()
             }
 
-            bacTrackSdk?.connectToNearestBreathalyzer()
+            _bacTrackSdk?.connectToNearestBreathalyzer()
         }
     }
 
@@ -296,7 +791,7 @@ class BacTrackSdk(
                 it.resumeWithConnectionError()
             }
 
-            bacTrackSdk?.serialNumber
+            _bacTrackSdk?.serialNumber
         }
     }
 
@@ -316,7 +811,7 @@ class BacTrackSdk(
                 it.resumeWithConnectionError()
             }
 
-            bacTrackSdk?.firmwareVersion
+            _bacTrackSdk?.firmwareVersion
         }
     }
 
@@ -339,15 +834,20 @@ class BacTrackSdk(
             }
         }
 
-        bacTrackSdk?.startCountdown()
+        _bacTrackSdk?.startCountdown()
     }.flowOn(ioDispatcher)
 
     private fun <T> Continuation<T>.errorIfSdkNotInitialized() {
-        if (bacTrackSdk == null) this.resumeWithException(SdkNotInitialized())
+        if (_bacTrackSdk == null) this.resumeWithException(SdkNotInitialized())
     }
 
     private fun <T> Continuation<T>.resumeWithConnectionError() {
         this.resumeWithException(SdkConnectionError())
+    }
+
+    private fun BacTrackSdk.throwIfNotInitialized(block: () -> Unit) {
+        if (this._bacTrackSdk == null) throw SdkNotInitialized()
+        block.invoke()
     }
 }
 

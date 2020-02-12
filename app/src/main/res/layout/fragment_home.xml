@@ -69,6 +69,7 @@
             app:layout_constraintStart_toStartOf="parent" />
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/welcome_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
@@ -78,5 +79,29 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/serial_button"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/connect_sync"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:onClick="@{ () -> viewModel.connectToClosestDevice() }"
+            android:text="Connect Syncronously"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/welcome_button"/>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/reading_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:onClick="@{ () -> viewModel.takeReading() }"
+            android:text="Take Reading"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/connect_sync"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

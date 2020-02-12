@@ -3,10 +3,13 @@ package com.kyleriedemann.drinkingbuddy.ui.home
 import androidx.lifecycle.*
 import com.kyleriedemann.drinkingbuddy.data.Result
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
+import com.kyleriedemann.drinkingbuddy.data.models.Reading
 import com.kyleriedemann.drinkingbuddy.data.source.NotificationRepository
 import com.kyleriedemann.drinkingbuddy.data.source.ReadingRepository
 import com.kyleriedemann.drinkingbuddy.di.ViewModelAssistedFactory
 import com.kyleriedemann.drinkingbuddy.sdk.BacTrackSdk
+import com.kyleriedemann.drinkingbuddy.sdk.ReadingEvents
+import com.snakydesign.livedataextensions.map
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import kotlinx.coroutines.flow.collect
@@ -24,8 +27,31 @@ class HomeViewModel @AssistedInject constructor (
     }
     val text: LiveData<String> = _text
 
+    val connected = sdk.connectedEvents
+    val error = sdk.errorEvents
+    val reading = sdk.readingEvents.map {
+        if (it is ReadingEvents.Result) {
+            saveReading(it)
+        }
+        it
+    }
+
+    private fun saveReading(readingResult: ReadingEvents.Result) = viewModelScope.launch {
+        readingRepository.insertReading(Reading(result = readingResult.reading))
+    }
+
     fun permissionsGranted() {
         sdk.start()
+    }
+
+    fun connectToClosestDevice() {
+        _text.postValue("Connecting to device")
+        sdk.connectToClosestDevice()
+    }
+
+    fun takeReading() {
+        _text.postValue("Taking reading")
+        sdk.takeReading()
     }
 
     fun connectToClosestDeviceAsync() = viewModelScope.launch {
@@ -61,7 +87,7 @@ class HomeViewModel @AssistedInject constructor (
         }
     }
 
-    fun takeReading() = viewModelScope.launch {
+    fun takeReadingAsync() = viewModelScope.launch {
         sdk.readingFlow().collect {
             _text.postValue(it)
             if (it.contains("Result")) {
