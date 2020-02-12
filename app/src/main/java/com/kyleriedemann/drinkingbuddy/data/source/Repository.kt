@@ -5,6 +5,7 @@ import com.kyleriedemann.drinkingbuddy.data.models.Reading
 import com.kyleriedemann.drinkingbuddy.data.Result
 
 interface NotificationRepository {
+    // todo remove the result class and return these as live data, updated from external sources if needed
     suspend fun getNotifications(): Result<List<Notification>>
 
     suspend fun getNotificationById(notificationId: String): Result<Notification>

@@ -1,6 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
+    <!-- todo add day/night theme -->
     <style name="AppTheme" parent="Theme.MaterialComponents.Light">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>

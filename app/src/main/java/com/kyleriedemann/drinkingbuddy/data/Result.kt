@@ -4,6 +4,7 @@ package com.kyleriedemann.drinkingbuddy.data
  * A generic class that holds a value with its loading status.
  * @param <T>
  */
+@Deprecated("should return db results as live data instead and fall back to data we already have")
 sealed class Result<out R> {
 
     data class Success<out T>(val data: T) : Result<T>()

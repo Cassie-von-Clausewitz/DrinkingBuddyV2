@@ -47,6 +47,7 @@ class NotificationsViewModel @AssistedInject constructor(
     }
 
     fun markNotificationRead(notification: Notification) = viewModelScope.launch {
+        // todo launch a detail view for these
         notificationsRepository.updateNotification(notification.copy(read = true))
         loadNotifications()
     }
