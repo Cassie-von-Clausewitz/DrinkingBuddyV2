@@ -166,4 +166,10 @@ dependencies {
 
     // runtime permissions
     implementation "com.sagar:livedatapermission:$liveDataPermissions"
+
+    // flipper
+    debugImplementation 'com.facebook.flipper:flipper:0.31.1'
+    debugImplementation 'com.facebook.soloader:soloader:0.8.0'
+
+    releaseImplementation 'com.facebook.flipper:flipper-noop:0.31.1'
 }

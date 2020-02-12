@@ -1,13 +1,21 @@
 package com.kyleriedemann.drinkingbuddy.ui.notifications
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
+import com.kyleriedemann.drinkingbuddy.data.Result
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
+import com.kyleriedemann.drinkingbuddy.data.source.NotificationRepository
+import com.kyleriedemann.drinkingbuddy.di.ViewModelAssistedFactory
+import com.kyleriedemann.drinkingbuddy.ui.home.HomeViewModel
+import com.squareup.inject.assisted.Assisted
+import com.squareup.inject.assisted.AssistedInject
+import kotlinx.coroutines.launch
 
-class NotificationsViewModel : ViewModel() {
-    private val _items = MutableLiveData<List<Notification>>(emptyList())
+class NotificationsViewModel @AssistedInject constructor(
+    @Assisted private val handle: SavedStateHandle,
+    private val notificationsRepository: NotificationRepository
+): ViewModel() {
+
+    private val _items = MutableLiveData<List<Notification>>().apply { value = emptyList() }
     val items: LiveData<List<Notification>> = _items
 
     private val _loading = MutableLiveData<Boolean>(false)
@@ -20,15 +28,35 @@ class NotificationsViewModel : ViewModel() {
         it.isEmpty()
     }
 
-    fun loadNotifications() {
-        TODO("Setup dagger for viewModel")
+    private fun loadNotifications() = viewModelScope.launch {
+        when (val notifications = notificationsRepository.getNotifications()) {
+            is Result.Success -> {
+                _items.postValue(notifications.data)
+                _loading.postValue(false)
+                clearError()
+            }
+            is Result.Error -> {
+                _errors.postValue(notifications.exception)
+                _loading.postValue(false)
+                clearError()
+            }
+            Result.Loading -> {
+                _loading.postValue(true)
+            }
+        }
     }
 
-    fun markNotificationRead(notification: Notification) {
-        TODO("Setup dagger for viewModel")
+    fun markNotificationRead(notification: Notification) = viewModelScope.launch {
+        notificationsRepository.updateNotification(notification.copy(read = true))
+        loadNotifications()
     }
 
     fun clearError() = _errors.postValue(null)
 
-    fun refresh() = loadNotifications()
+    fun refresh() {
+        loadNotifications()
+    }
+
+    @AssistedInject.Factory
+    interface Factory : ViewModelAssistedFactory<NotificationsViewModel>
 }

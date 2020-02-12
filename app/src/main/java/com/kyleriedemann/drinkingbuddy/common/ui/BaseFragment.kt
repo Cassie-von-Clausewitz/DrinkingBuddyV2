@@ -33,7 +33,8 @@ abstract class BaseFragment<V: ViewModel, B: ViewDataBinding> : DaggerFragment()
         return binding.root
     }
 
-    private fun showError(error: Throwable) {
+    protected fun showError(error: Throwable?) {
+        if (error == null) return
         showError(error.message ?: "")
     }
 
@@ -43,7 +44,7 @@ abstract class BaseFragment<V: ViewModel, B: ViewDataBinding> : DaggerFragment()
         }
     }
 
-    private fun dismissErrorIfShown() {
+    protected fun dismissErrorIfShown() {
         errorSnackBar?.dismiss()
     }
 }

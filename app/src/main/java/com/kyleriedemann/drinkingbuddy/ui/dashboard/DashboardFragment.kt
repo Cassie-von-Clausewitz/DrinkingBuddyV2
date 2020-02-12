@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.lifecycle.observe
 import com.kyleriedemann.drinkingbuddy.R
 
 class DashboardFragment : Fragment() {
@@ -26,6 +27,10 @@ class DashboardFragment : Fragment() {
         dashboardViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
         })
+
+        dashboardViewModel.text.observe(viewLifecycleOwner) {
+
+        }
         return root
     }
 }
