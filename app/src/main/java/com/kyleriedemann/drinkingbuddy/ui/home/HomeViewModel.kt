@@ -7,8 +7,7 @@ import com.kyleriedemann.drinkingbuddy.data.models.Reading
 import com.kyleriedemann.drinkingbuddy.data.source.NotificationRepository
 import com.kyleriedemann.drinkingbuddy.data.source.ReadingRepository
 import com.kyleriedemann.drinkingbuddy.di.ViewModelAssistedFactory
-import com.kyleriedemann.drinkingbuddy.sdk.BacTrackSdk
-import com.kyleriedemann.drinkingbuddy.sdk.ReadingEvents
+import com.kyleriedemann.drinkingbuddy.sdk.*
 import com.snakydesign.livedataextensions.map
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
@@ -27,7 +26,16 @@ class HomeViewModel @AssistedInject constructor (
     }
     val text: LiveData<String> = _text
 
-    val connected = sdk.connectedEvents
+    val connected = sdk.connectedEvents.map {
+        if (it is ConnectedEvents.Connected) {
+            saveDeviceConnected(it.deviceType)
+        } else if (it is ConnectedEvents.FoundDevice) {
+            saveDeviceFound(it.device)
+        } else if (it is ConnectedEvents.DidConnect) {
+            saveDidConnect(it.message)
+        }
+        it
+    }
     val error = sdk.errorEvents
     val reading = sdk.readingEvents.map {
         if (it is ReadingEvents.Result) {
@@ -38,6 +46,18 @@ class HomeViewModel @AssistedInject constructor (
 
     private fun saveReading(readingResult: ReadingEvents.Result) = viewModelScope.launch {
         readingRepository.insertReading(Reading(result = readingResult.reading))
+    }
+
+    private fun saveDeviceConnected(deviceType: DeviceType) = viewModelScope.launch {
+        notificationRepository.insertNotification(Notification("Device Connected", "$deviceType"))
+    }
+
+    private fun saveDeviceFound(device: Device) = viewModelScope.launch {
+        notificationRepository.insertNotification(Notification("Device Found", "$device"))
+    }
+
+    private fun saveDidConnect(message: String) = viewModelScope.launch {
+        notificationRepository.insertNotification(Notification("Device Did Connect", message))
     }
 
     fun permissionsGranted() {
