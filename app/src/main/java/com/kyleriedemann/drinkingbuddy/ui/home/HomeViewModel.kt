@@ -26,7 +26,9 @@ class HomeViewModel @AssistedInject constructor (
     }
     val text: LiveData<String> = _text
 
-    var prediction: String? = null
+    var prediction: Float = 0.0f
+
+    fun showPrediction() = _text.postValue("Prediction: $prediction")
 
     val connected = sdk.connectedEvents.map {
         when (it) {
@@ -45,7 +47,7 @@ class HomeViewModel @AssistedInject constructor (
     }
 
     private fun saveReading(readingResult: ReadingEvents.Result) = viewModelScope.launch {
-        readingRepository.insertReading(Reading(result = readingResult.reading, prediction = prediction?.toFloat() ?: 0.0f))
+        readingRepository.insertReading(Reading(result = readingResult.reading, prediction = prediction))
     }
 
     private fun saveDeviceConnected(deviceType: DeviceType) = viewModelScope.launch {

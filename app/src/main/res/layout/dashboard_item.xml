@@ -6,7 +6,7 @@
 
     <data>
         <import type="android.view.View"/>
-        <import type="com.kyleriedemann.drinkingbuddy.ui.common.InstantConverter"/>
+        <import type="com.kyleriedemann.drinkingbuddy.ui.common.Converters"/>
 
         <variable
             name="reading"
@@ -42,7 +42,7 @@
             android:id="@+id/reading_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{InstantConverter.dateToString(reading.time)}"
+            android:text="@{Converters.dateToString(reading.time)}"
             android:textAppearance="@android:style/TextAppearance.Material.Subhead"
             android:textAlignment="viewStart"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -50,7 +50,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="@+id/reading_values"
             app:layout_constraintTop_toBottomOf="@+id/reading_values"
-            tools:text="2020-02-12T05:29:23.104Z"/>
+            tools:text="February 18, 2020 at 9:08:17 PM CST"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
