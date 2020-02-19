@@ -6,8 +6,8 @@ import com.kyleriedemann.drinkingbuddy.data.source.NotificationDataSource
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import com.kyleriedemann.drinkingbuddy.data.Result.Success
-import com.kyleriedemann.drinkingbuddy.data.Result.Error
+import com.kyleriedemann.drinkingbuddy.data.LceState.Success
+import com.kyleriedemann.drinkingbuddy.data.LceState.Error
 
 class NotificationLocalDataSource internal constructor(
     private val notificationDao: NotificationDao,

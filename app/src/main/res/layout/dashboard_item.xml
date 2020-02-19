@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View"/>
+
+        <variable
+            name="reading"
+            type="com.kyleriedemann.drinkingbuddy.data.models.Reading"/>
+
+        <variable
+            name="viewModel"
+            type="com.kyleriedemann.drinkingbuddy.ui.dashboard.DashboardViewModel"/>
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/dashboard_list_item"
+        android:layout_width="match_parent"
+        android:layout_height="?android:attr/listPreferredItemHeightLarge"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/list_item_padding"
+        android:paddingBottom="@dimen/list_item_padding">
+
+        <TextView
+            android:id="@+id/reading_values"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{viewModel.displayData(reading)}"
+            android:textAlignment="viewStart"
+            android:textAppearance="@android:style/TextAppearance.Material.Headline"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Prediction: 0.2, Reading 0.3" />
+
+        <TextView
+            android:id="@+id/reading_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{reading.time.toString()}"
+            android:textAppearance="@android:style/TextAppearance.Material.Subhead"
+            android:textAlignment="viewStart"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/reading_values"
+            app:layout_constraintTop_toBottomOf="@+id/reading_values"
+            tools:text="2020-02-12T05:29:23.104Z"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

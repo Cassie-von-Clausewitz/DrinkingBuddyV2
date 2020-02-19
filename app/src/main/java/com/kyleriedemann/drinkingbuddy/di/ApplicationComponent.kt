@@ -20,6 +20,7 @@ import javax.inject.Singleton
         ApplicationModule::class,
         LoggingModule::class,
         HomeModule::class,
+        DashboardModule::class,
         NotificationsModule::class,
         ViewModelAssistedFactoriesModule::class
     ])

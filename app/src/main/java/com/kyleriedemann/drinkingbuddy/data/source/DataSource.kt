@@ -3,14 +3,14 @@ package com.kyleriedemann.drinkingbuddy.data.source
 import androidx.lifecycle.LiveData
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
 import com.kyleriedemann.drinkingbuddy.data.models.Reading
-import com.kyleriedemann.drinkingbuddy.data.Result
+import com.kyleriedemann.drinkingbuddy.data.LceState
 
 interface NotificationDataSource {
-    suspend fun getNotifications(): Result<List<Notification>>
+    suspend fun getNotifications(): LceState<List<Notification>>
 
     fun getNotificationsLive(): LiveData<List<Notification>>
 
-    suspend fun getNotificationById(notificationId: String): Result<Notification>
+    suspend fun getNotificationById(notificationId: String): LceState<Notification>
 
     suspend fun insertNotification(notification: Notification)
 
@@ -26,9 +26,9 @@ interface NotificationDataSource {
 }
 
 interface ReadingDataSource {
-    suspend fun getReadings(): Result<List<Reading>>
+    suspend fun getReadings(): LceState<List<Reading>>
 
-    suspend fun getReadingById(readingId: String): Result<Reading>
+    suspend fun getReadingById(readingId: String): LceState<Reading>
 
     suspend fun insertReading(reading: Reading)
 

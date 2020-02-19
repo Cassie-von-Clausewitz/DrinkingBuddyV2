@@ -18,11 +18,9 @@ class NotificationsAdapter(private val viewModel: NotificationsViewModel) :
         holder.bind(viewModel, item)
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder.from(parent)
-    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = ViewHolder.from(parent)
 
-    class ViewHolder private constructor(val binding: NotificationItemBinding) :
+    class ViewHolder private constructor(private val binding: NotificationItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(viewModel: NotificationsViewModel, item: Notification) {

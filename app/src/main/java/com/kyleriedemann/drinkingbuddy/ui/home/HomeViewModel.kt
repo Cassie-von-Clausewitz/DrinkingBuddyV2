@@ -1,7 +1,6 @@
 package com.kyleriedemann.drinkingbuddy.ui.home
 
 import androidx.lifecycle.*
-import com.kyleriedemann.drinkingbuddy.data.Result
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
 import com.kyleriedemann.drinkingbuddy.data.models.Reading
 import com.kyleriedemann.drinkingbuddy.data.source.NotificationRepository

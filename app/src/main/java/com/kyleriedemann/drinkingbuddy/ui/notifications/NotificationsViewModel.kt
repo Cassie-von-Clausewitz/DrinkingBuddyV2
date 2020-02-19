@@ -1,11 +1,10 @@
 package com.kyleriedemann.drinkingbuddy.ui.notifications
 
 import androidx.lifecycle.*
-import com.kyleriedemann.drinkingbuddy.data.Result
+import com.kyleriedemann.drinkingbuddy.data.LceState
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
 import com.kyleriedemann.drinkingbuddy.data.source.NotificationRepository
 import com.kyleriedemann.drinkingbuddy.di.ViewModelAssistedFactory
-import com.kyleriedemann.drinkingbuddy.ui.home.HomeViewModel
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import kotlinx.coroutines.launch
@@ -31,18 +30,18 @@ class NotificationsViewModel @AssistedInject constructor(
 
     private fun loadNotifications() = viewModelScope.launch {
         when (val notifications = notificationsRepository.getNotifications()) {
-            is Result.Success -> {
+            is LceState.Success -> {
                 _items.postValue(notifications.data)
                 _loading.postValue(false)
                 clearError()
             }
-            is Result.Error -> {
+            is LceState.Error -> {
                 _errors.postValue(notifications.exception)
                 _loading.postValue(false)
-                clearError()
             }
-            Result.Loading -> {
+            LceState.Loading -> {
                 _loading.postValue(true)
+                clearError()
             }
         }
     }
@@ -55,9 +54,7 @@ class NotificationsViewModel @AssistedInject constructor(
 
     fun clearError() = _errors.postValue(null)
 
-    fun refresh() {
-        loadNotifications()
-    }
+    fun refresh() = loadNotifications()
 
     @AssistedInject.Factory
     interface Factory : ViewModelAssistedFactory<NotificationsViewModel>

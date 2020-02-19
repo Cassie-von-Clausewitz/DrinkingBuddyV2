@@ -10,27 +10,28 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.observe
 import com.kyleriedemann.drinkingbuddy.R
+import com.kyleriedemann.drinkingbuddy.common.ui.BaseFragment
+import com.kyleriedemann.drinkingbuddy.databinding.FragmentDashboardBinding
+import com.kyleriedemann.drinkingbuddy.ui.notifications.NotificationsViewModel
 
-class DashboardFragment : Fragment() {
+class DashboardFragment : BaseFragment<DashboardViewModel, FragmentDashboardBinding>() {
+    override val viewModel: DashboardViewModel by viewModels { viewModelFactory }
+    override val layoutId: Int = R.layout.fragment_dashboard
 
-    private val dashboardViewModel by viewModels<DashboardViewModel>()
+    private lateinit var listAdapter: DashboardAdapter
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        setupListAdapter()
+        viewModel.refresh()
 
-        val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
-        val textView: TextView = root.findViewById(R.id.text_dashboard)
-
-        dashboardViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
-
-        dashboardViewModel.text.observe(viewLifecycleOwner) {
-
+        viewModel.errors.observe(viewLifecycleOwner) {
+            showError(it)
         }
-        return root
+    }
+
+    private fun setupListAdapter() {
+        listAdapter = DashboardAdapter(viewModel)
+        binding.readingsList.adapter = listAdapter
     }
 }
