@@ -10,7 +10,7 @@ interface ReadingDao {
      *
      * @return all readings
      */
-    @Query("SELECT * FROM Readings ORDER BY datetime(datetime)")
+    @Query("SELECT * FROM Readings ORDER BY datetime(datetime) DESC")
     suspend fun getReadings(): List<Reading>
 
     /**

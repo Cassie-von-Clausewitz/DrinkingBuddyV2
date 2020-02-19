@@ -6,6 +6,7 @@
 
     <data>
         <import type="android.view.View"/>
+        <import type="com.kyleriedemann.drinkingbuddy.ui.common.InstantConverter"/>
 
         <variable
             name="reading"
@@ -41,7 +42,7 @@
             android:id="@+id/reading_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{reading.time.toString()}"
+            android:text="@{InstantConverter.dateToString(reading.time)}"
             android:textAppearance="@android:style/TextAppearance.Material.Subhead"
             android:textAlignment="viewStart"
             app:layout_constraintBottom_toBottomOf="parent"

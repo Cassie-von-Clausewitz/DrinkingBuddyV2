@@ -10,6 +10,8 @@
     <string name="permissions_rational">Bluetooth and location permissions are used to find and communicate with devices. The app serves no purpose without these permissions.</string>
     <string name="ok">OK</string>
 
+    <string name="prediction">Prediction</string>
+
     <string name="no_notifications">No Notifications</string>
     <string name="no_readings">No Readings</string>
 

@@ -867,6 +867,22 @@ enum class SdkErrors(val errorCode: Byte) {
     MAX_BAC_EXCEEDED_ERROR(10),
     UNKNOWN_ERROR(11);
 
+    override fun toString(): String {
+        return when (this) {
+            TIME_OUT -> "Connection timeout"
+            BLOW_ERROR -> "Blow error"
+            OUT_OF_TEMPERATURE -> "Out of Temperature"
+            LOW_BATTERY -> "Low Battery"
+            CALIBRATION_FAIL -> "Calibration Failure"
+            NOT_CALIBRATED -> "Not Calibrated"
+            COM_ERROR -> "COM Error"
+            INFLOW_ERROR -> "Inflow Error"
+            SOLENOID_ERROR -> "Solenoid Error"
+            MAX_BAC_EXCEEDED_ERROR -> "Max BAC Exceeded!"
+            UNKNOWN_ERROR -> "Unknown Error"
+        }
+    }
+
     companion object {
         fun fromByte(errorCode: Byte) = fromInt(errorCode.toInt())
 

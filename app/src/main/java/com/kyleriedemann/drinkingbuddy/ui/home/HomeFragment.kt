@@ -23,6 +23,14 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>(), Permiss
 
     override fun onStart() {
         super.onStart()
+        requestPermissions()
+        setupSdkObservers()
+    }
+
+    /**
+     * Starts permission request and receives results in [setupObserver]
+     */
+    private fun requestPermissions() {
         PermissionManager.requestPermissions(
             this,
             REQUEST_ID,
@@ -30,7 +38,12 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>(), Permiss
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.BLUETOOTH_ADMIN,
             Manifest.permission.BLUETOOTH)
+    }
 
+    /**
+     * Start observing the data coming from the SDK exposed via the [HomeViewModel]
+     */
+    private fun setupSdkObservers() {
         viewModel.connected.observe(viewLifecycleOwner) {
             binding.textHome.text = when(it) {
                 is ConnectedEvents.FoundDevice -> "Found ${it.device}"
@@ -58,6 +71,9 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>(), Permiss
         }
     }
 
+    /**
+     * Sets up the [LiveData] Observer for permission results
+     */
     override fun setupObserver(permissionResultLiveData: LiveData<PermissionResult>) {
         if (view == null) return
         permissionResultLiveData.observe(viewLifecycleOwner) {
@@ -96,6 +112,9 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>(), Permiss
         showDialog(R.string.permissions_rational)
     }
 
+    /**
+     * Created a dialog with a message from a given string res. Used for explaining permission requests
+     */
     private fun showDialog(@StringRes message: Int) {
         activity?.let {
             val builder = AlertDialog.Builder(it)

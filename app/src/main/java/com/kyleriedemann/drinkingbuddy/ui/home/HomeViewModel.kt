@@ -12,6 +12,7 @@ import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlin.properties.Delegates
 
 class HomeViewModel @AssistedInject constructor (
     @Assisted private val handle: SavedStateHandle,
@@ -25,13 +26,13 @@ class HomeViewModel @AssistedInject constructor (
     }
     val text: LiveData<String> = _text
 
+    var prediction: String? = null
+
     val connected = sdk.connectedEvents.map {
-        if (it is ConnectedEvents.Connected) {
-            saveDeviceConnected(it.deviceType)
-        } else if (it is ConnectedEvents.FoundDevice) {
-            saveDeviceFound(it.device)
-        } else if (it is ConnectedEvents.DidConnect) {
-            saveDidConnect(it.message)
+        when (it) {
+            is ConnectedEvents.Connected -> saveDeviceConnected(it.deviceType)
+            is ConnectedEvents.FoundDevice -> saveDeviceFound(it.device)
+            is ConnectedEvents.DidConnect -> saveDidConnect(it.message)
         }
         it
     }
@@ -44,7 +45,7 @@ class HomeViewModel @AssistedInject constructor (
     }
 
     private fun saveReading(readingResult: ReadingEvents.Result) = viewModelScope.launch {
-        readingRepository.insertReading(Reading(result = readingResult.reading))
+        readingRepository.insertReading(Reading(result = readingResult.reading, prediction = prediction?.toFloat() ?: 0.0f))
     }
 
     private fun saveDeviceConnected(deviceType: DeviceType) = viewModelScope.launch {
