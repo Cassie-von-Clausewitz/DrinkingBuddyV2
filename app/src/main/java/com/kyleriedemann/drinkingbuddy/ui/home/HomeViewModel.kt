@@ -11,12 +11,14 @@ import com.snakydesign.livedataextensions.map
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
 class HomeViewModel @AssistedInject constructor (
     @Assisted private val handle: SavedStateHandle,
     private val sdk: BacTrackSdk,
+    private val coroutineSdk: CoroutineBacTrackSdk,
     private val readingRepository: ReadingRepository,
     private val notificationRepository: NotificationRepository
 ) : ViewModel() {
@@ -63,12 +65,16 @@ class HomeViewModel @AssistedInject constructor (
     }
 
     fun permissionsGranted() {
-        sdk.start()
+//        sdk.start()
+
+        coroutineSdk.start()
+        receiveChannels()
     }
 
-    fun errorChan() = viewModelScope.launch {
-        val sub = sdk.errorChannel.openSubscription()
-        val error = sub.receive()
+    private fun receiveChannels() = viewModelScope.launch {
+        coroutineSdk.apiKeyEvents.openSubscription().consumeAsFlow().collect {
+
+        }
     }
 
     fun connectToClosestDevice() {
