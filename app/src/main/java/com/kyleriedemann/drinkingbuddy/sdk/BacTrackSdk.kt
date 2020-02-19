@@ -16,6 +16,7 @@ import com.snakydesign.livedataextensions.map
 import com.snakydesign.livedataextensions.merge
 import com.snakydesign.livedataextensions.mergeWith
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BroadcastChannel
 import timber.log.Timber
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -302,6 +303,7 @@ sealed class StateEvents {
     object Idle: StateEvents()
 }
 
+// todo try to recreate these in channels or the channels that convert to flows
 class LiveDataCallbacks: BACtrackAPICallbacksFull {
     //<editor-fold desc="Errors Events">
     private val _errorLiveData = MutableLiveData<Int>()
@@ -309,6 +311,11 @@ class LiveDataCallbacks: BACtrackAPICallbacksFull {
         SdkErrors.fromInt(it)
     }
     override fun BACtrackError(errorCode: Int) = _errorLiveData.postValue(errorCode)
+
+    val errorChannel = BroadcastChannel<SdkErrors>(capacity = 1000)
+//    override fun BACtrackError(errorCode: Int) = runBlocking {
+//        errorChannel.send(SdkErrors.fromInt(errorCode))
+//    }
     //</editor-fold>
 
     //<editor-fold desc="Api Key Events">
@@ -728,6 +735,8 @@ class BacTrackSdk(
     private var _bacTrackSdk: BACtrackAPI? = null
 
     private val liveDataCallbacks = LiveDataCallbacks()
+
+    val errorChannel = liveDataCallbacks.errorChannel
 
     val errorEvents = liveDataCallbacks.errorLiveData
     val apiKeyEvents = liveDataCallbacks.apiKeyLiveData

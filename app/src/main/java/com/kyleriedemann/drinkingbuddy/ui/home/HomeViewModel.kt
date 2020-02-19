@@ -66,6 +66,11 @@ class HomeViewModel @AssistedInject constructor (
         sdk.start()
     }
 
+    fun errorChan() = viewModelScope.launch {
+        val sub = sdk.errorChannel.openSubscription()
+        val error = sub.receive()
+    }
+
     fun connectToClosestDevice() {
         _text.postValue("Connecting to device")
         sdk.connectToClosestDevice()
