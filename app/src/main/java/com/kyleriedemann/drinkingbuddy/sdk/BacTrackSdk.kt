@@ -307,42 +307,92 @@ sealed class SdkEvents {
 
 sealed class ApiKeyEvents {
     object Accepted: ApiKeyEvents()
-    class Declined(val message: String): ApiKeyEvents()
+    data class Declined(val message: String): ApiKeyEvents()
+
+    override fun toString(): String {
+        return when (this) {
+            is Accepted -> "ApiKeyEvent.Accepted"
+            is Declined -> "ApiKeyEvent.Declined"
+        }
+    }
 }
 
 sealed class ConnectedEvents {
-    class FoundDevice(val device: Device): ConnectedEvents()
-    class Connected(val deviceType: DeviceType): ConnectedEvents()
-    class DidConnect(val message: String): ConnectedEvents()
+    data class FoundDevice(val device: Device): ConnectedEvents()
+    data class Connected(val deviceType: DeviceType): ConnectedEvents()
+    data class DidConnect(val message: String): ConnectedEvents()
     object Disconnected: ConnectedEvents()
     object Timeout: ConnectedEvents()
     object NoDevicesFound: ConnectedEvents()
     object ConnectionError: ConnectedEvents()
+
+    override fun toString(): String {
+        return when(this) {
+            is FoundDevice -> "ConnectedEvents.FoundDevice(${this.device})"
+            is Connected -> "ConnectedEvents.Connected(${this.deviceType})"
+            is DidConnect -> "ConnectedEvents.DidConnect(${this.message})"
+            Disconnected -> "ConnectedEvents.Disconnected"
+            Timeout -> "ConnectedEvents.Timeout"
+            NoDevicesFound -> "ConnectedEvents.NoDevicesFound"
+            ConnectionError -> "ConnectedEvents.ConnectionError"
+        }
+    }
 }
 
 sealed class ReadingEvents {
     object Start: ReadingEvents()
-    class Countdown(val count: Int): ReadingEvents()
+    data class Countdown(val count: Int): ReadingEvents()
     object Blow: ReadingEvents()
     object Analyzing: ReadingEvents()
-    class Result(val reading: Float): ReadingEvents()
+    data class Result(val reading: Float): ReadingEvents()
+
+    override fun toString(): String {
+        return when(this) {
+            Start -> "ReadingEvents.Start"
+            is Countdown -> "ReadingEvents.Countdown(${this.count})"
+            Blow -> "ReadingEvents.Blow"
+            Analyzing -> "ReadingEvents.Analyzing"
+            is Result -> "ReadingEvents.Result(${this.reading})"
+        }
+    }
 }
 
 sealed class DeviceInformationEvents {
-    class Firmware(val firmware: String): DeviceInformationEvents()
-    class Serial(val serial: String): DeviceInformationEvents()
-    class UseCount(val uses: Int): DeviceInformationEvents()
-    class BatteryVoltage(val voltage: Float): DeviceInformationEvents()
-    class BatteryLevel(val level: Int): DeviceInformationEvents()
-    class Units(val units: BACtrackUnit): DeviceInformationEvents()
-    class CalibrationResults(val calibrationResults: ByteArray): DeviceInformationEvents()
-    class TransmitPower(val transmitPower: Byte): DeviceInformationEvents()
-    class ProtectionBit(val protectionBit: ByteArray): DeviceInformationEvents()
+    data class Firmware(val firmware: String): DeviceInformationEvents()
+    data class Serial(val serial: String): DeviceInformationEvents()
+    data class UseCount(val uses: Int): DeviceInformationEvents()
+    data class BatteryVoltage(val voltage: Float): DeviceInformationEvents()
+    data class BatteryLevel(val level: Int): DeviceInformationEvents()
+    data class Units(val units: BACtrackUnit): DeviceInformationEvents()
+    data class CalibrationResults(val calibrationResults: ByteArray): DeviceInformationEvents()
+    data class TransmitPower(val transmitPower: Byte): DeviceInformationEvents()
+    data class ProtectionBit(val protectionBit: ByteArray): DeviceInformationEvents()
+
+    override fun toString(): String {
+        return when(this) {
+            is Firmware -> "DeviceInformationEvents.Firmware(${this.firmware})"
+            is Serial -> "DeviceInformationEvents.Serial(${this.serial})"
+            is UseCount -> "DeviceInformationEvents.UseCount(${this.uses})"
+            is BatteryVoltage -> "DeviceInformationEvents.BatteryVoltage(${this.voltage})"
+            is BatteryLevel -> "DeviceInformationEvents.BatteryLevel(${this.level})"
+            is Units -> "DeviceInformationEvents.Units(${this.units})"
+            is CalibrationResults -> "DeviceInformationEvents.CalibrationResults(${this.calibrationResults})"
+            is TransmitPower -> "DeviceInformationEvents.TransmitPower(${this.transmitPower})"
+            is ProtectionBit -> "DeviceInformationEvents.ProtectionBit(${this.protectionBit})"
+        }
+    }
 }
 
 sealed class StateEvents {
     object Active: StateEvents()
     object Idle: StateEvents()
+
+    override fun toString(): String {
+        return when(this) {
+            Active -> "StateEvents.Active"
+            Idle -> "StateEvents.Idle"
+        }
+    }
 }
 
 // todo try to recreate these in channels or the channels that convert to flows
@@ -613,7 +663,10 @@ class FlowCallbacks: BACtrackAPICallbacksFull {
      * Also allows us to set a method to posting the value directly like we could with live data
      */
     private fun <E> ConflatedBroadcastChannel<E>.postValue(element: E) {
-        this.offer(element)
+        Timber.i("Posting value to channel: $element")
+        Dispatchers.IO.dispatch(GlobalScope.coroutineContext, Runnable {
+            this.offer(element)
+        })
     }
 }
 
