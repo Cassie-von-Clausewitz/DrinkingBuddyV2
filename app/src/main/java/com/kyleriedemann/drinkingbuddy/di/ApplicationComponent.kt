@@ -18,7 +18,6 @@ import javax.inject.Singleton
     modules = [
         AndroidInjectionModule::class,
         ApplicationModule::class,
-        LoggingModule::class,
         HomeModule::class,
         DashboardModule::class,
         NotificationsModule::class,

@@ -48,6 +48,10 @@ class NotificationLocalDataSource internal constructor(
         notificationDao.markRead(notificationId, read)
     }
 
+    override suspend fun markAllRead(read: Boolean) = withContext(ioDispatcher) {
+        notificationDao.markAllRead(read)
+    }
+
     override suspend fun deleteNotification(notification: Notification) = withContext(ioDispatcher) {
         notificationDao.deleteNotification(notification)
     }

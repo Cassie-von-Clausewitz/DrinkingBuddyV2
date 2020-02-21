@@ -10,14 +10,18 @@ import com.kyleriedemann.drinkingbuddy.sdk.*
 import com.squareup.inject.assisted.Assisted
 import com.squareup.inject.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class HomeViewModel @AssistedInject constructor (
     @Assisted private val handle: SavedStateHandle,
-    private val coroutineSdk: CoroutineBacTrackSdk,
+    private val sdk: BacTrackSdk,
     private val readingRepository: ReadingRepository,
     private val notificationRepository: NotificationRepository
 ) : ViewModel() {
@@ -33,32 +37,16 @@ class HomeViewModel @AssistedInject constructor (
 
     fun showPrediction() = _text.postValue("Prediction: $prediction")
 
-//    val connected = sdk.connectedEvents.map {
-//        when (it) {
-//            is ConnectedEvents.Connected -> saveDeviceConnected(it.deviceType)
-//            is ConnectedEvents.FoundDevice -> saveDeviceFound(it.device)
-//            is ConnectedEvents.DidConnect -> saveDidConnect(it.message)
-//        }
-//        it
-//    }
-//    val error = sdk.errorEvents
-//    val reading = sdk.readingEvents.map {
-//        if (it is ReadingEvents.Result) {
-//            saveReading(it)
-//        }
-//        it
-//    }
+    private val _connected = MutableLiveData<SdkEvent.ConnectedEvent>()
+    val connected: LiveData<SdkEvent.ConnectedEvent> = _connected
 
-    private val _connected = MutableLiveData<ConnectedEvents>()
-    val connected: LiveData<ConnectedEvents> = _connected
+    private val _error = MutableLiveData<SdkEvent.ErrorEvent>()
+    val error: LiveData<SdkEvent.ErrorEvent> = _error
 
-    private val _error = MutableLiveData<SdkErrors>()
-    val error: LiveData<SdkErrors> = _error
+    private val _reading = MutableLiveData<SdkEvent.ReadingEvent>()
+    val reading: LiveData<SdkEvent.ReadingEvent> = _reading
 
-    private val _reading = MutableLiveData<ReadingEvents>()
-    val reading: LiveData<ReadingEvents> = _reading
-
-    private fun saveReading(readingResult: ReadingEvents.Result) = viewModelScope.launch(dispatcher) {
+    private fun saveReading(readingResult: SdkEvent.ReadingEvent.Result) = viewModelScope.launch(dispatcher) {
         readingRepository.insertReading(Reading(result = readingResult.reading, prediction = prediction))
     }
 
@@ -67,17 +55,18 @@ class HomeViewModel @AssistedInject constructor (
     }
 
     private fun saveDeviceFound(device: Device) = viewModelScope.launch(dispatcher) {
-        notificationRepository.insertNotification(Notification("Device Found", "$device"))
+        notificationRepository.insertNotification(Notification("Device Found", device.readableToString()))
     }
 
     private fun saveDidConnect(message: String) = viewModelScope.launch(dispatcher) {
         notificationRepository.insertNotification(Notification("Device Did Connect", message))
     }
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     fun permissionsGranted() {
-//        sdk.start()
         Timber.i("Starting SDK")
-        coroutineSdk.start()
+        sdk.start()
         receiveApiEvents()
         receiveConnectedEvents()
         receiveReadingEvents()
@@ -85,48 +74,54 @@ class HomeViewModel @AssistedInject constructor (
         receiveErrorEvents()
     }
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     private fun receiveApiEvents() = viewModelScope.launch(dispatcher) {
         Timber.i("Opening channel subscriptions")
-        coroutineSdk.apiKeyEvents.openSubscription().consumeAsFlow().distinctUntilChanged().collect {
+        sdk.apiKeyEvents.openSubscription().consumeAsFlow().distinctUntilChanged().collect {
             Timber.i("ApiKeyEvent: $it")
         }
     }
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     private fun receiveConnectedEvents() = viewModelScope.launch(dispatcher) {
-        coroutineSdk.connectedEvents.openSubscription().consumeAsFlow().distinctUntilChanged().collect {
+        sdk.connectedEvents.openSubscription().consumeAsFlow().distinctUntilChanged().collect {
             Timber.i("ConnectedEvent: $it")
             when(it) {
-                is ConnectedEvents.Connected -> saveDeviceConnected(it.deviceType)
-                is ConnectedEvents.FoundDevice -> saveDeviceFound(it.device)
-                is ConnectedEvents.DidConnect -> saveDidConnect(it.message)
+                is SdkEvent.ConnectedEvent.Connected -> saveDeviceConnected(it.deviceType)
+                is SdkEvent.ConnectedEvent.FoundDevice -> saveDeviceFound(it.device)
+                is SdkEvent.ConnectedEvent.DidConnect -> saveDidConnect(it.message)
             }
             _connected.postValue(it)
         }
     }
 
-    private fun countdown() = viewModelScope.launch(dispatcher) {
-
-    }
-
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     private fun receiveReadingEvents() = viewModelScope.launch(dispatcher) {
-        coroutineSdk.readingEvents.openSubscription().consumeAsFlow().distinctUntilChanged().collect {
+        sdk.readingEvents.openSubscription().consumeAsFlow().distinctUntilChanged().collect {
             Timber.i("ReadingEvent: $it")
-            if (it is ReadingEvents.Result) {
+            if (it is SdkEvent.ReadingEvent.Result) {
                 saveReading(it)
             }
             _reading.postValue(it)
         }
     }
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     private fun receiveDeviceInfoEvents() = viewModelScope.launch(dispatcher) {
-        coroutineSdk.deviceInformationEvents.openSubscription().consumeAsFlow().distinctUntilChanged().collect {
+        sdk.deviceInformationEvents.openSubscription().consumeAsFlow().distinctUntilChanged().collect {
             Timber.i("DeviceInformationEvent: $it")
             notificationRepository.insertNotification(Notification("Device Information", it.toString()))
         }
     }
 
+    @FlowPreview
+    @ExperimentalCoroutinesApi
     private fun receiveErrorEvents() = viewModelScope.launch(dispatcher) {
-        coroutineSdk.errorEvents.openSubscription().consumeAsFlow().flowOn(dispatcher).collect {
+        sdk.errorEvents.openSubscription().consumeAsFlow().flowOn(dispatcher).collect {
             Timber.i("ErrorEvent: $it")
             _error.postValue(it)
         }
@@ -134,58 +129,22 @@ class HomeViewModel @AssistedInject constructor (
 
     fun connectToClosestDevice() {
         _text.postValue("Connecting to device")
-        coroutineSdk.connectToClosestDevice()
+        sdk.connectToClosestDevice()
     }
 
     fun takeReading() {
         _text.postValue("Taking reading")
-        coroutineSdk.takeReading()
-    }
-
-    fun connectToClosestDeviceAsync() = viewModelScope.launch {
-        try {
-            _text.postValue("Connecting to device...")
-            val deviceType = coroutineSdk.connectToClosestDeviceAsync()
-            _text.postValue("Connected to device type $deviceType")
-            notificationRepository.insertNotification(Notification("Device Connected", "$deviceType"))
-        } catch (e: Exception) {
-            displayException(e)
-        }
+        sdk.takeReading()
     }
 
     fun getDeviceFirmware() = viewModelScope.launch {
-        try {
-            _text.postValue("Reading firmware...")
-            val firmwareVersion = coroutineSdk.getFirmwareVersionAsync()
-            _text.postValue("Firmware: $firmwareVersion")
-            notificationRepository.insertNotification(Notification("Firmware Version", firmwareVersion))
-        } catch (e: Exception) {
-            displayException(e)
-        }
+        _text.postValue("Reading firmware...")
+        sdk.getFirmwareVersion()
     }
 
     fun getSerialNumber() = viewModelScope.launch {
-        try {
-            _text.postValue("Reading serial number...")
-            val serialNumber = coroutineSdk.getSerialNumberAsync()
-            _text.postValue("Serial: $serialNumber")
-            notificationRepository.insertNotification(Notification("Serial Number", serialNumber))
-        } catch (e: Exception) {
-            displayException(e)
-        }
-    }
-
-    fun takeReadingAsync() = viewModelScope.launch {
-        coroutineSdk.readingFlow().collect {
-            _text.postValue(it)
-            if (it.contains("Result")) {
-                return@collect
-            }
-        }
-    }
-
-    private fun displayException(e: Exception) {
-        _text.postValue(e.message)
+        _text.postValue("Reading serial number...")
+        sdk.getSerialNumber()
     }
 
     fun sendWelcomeNotification() = viewModelScope.launch {

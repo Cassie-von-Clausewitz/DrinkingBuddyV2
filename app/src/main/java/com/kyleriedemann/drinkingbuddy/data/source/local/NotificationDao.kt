@@ -57,6 +57,12 @@ interface NotificationDao {
     suspend fun markRead(notificationId: String, read: Boolean = true)
 
     /**
+     * Updates the read status of all notifications
+     */
+    @Query("UPDATE notifications SET read=:read")
+    suspend fun markAllRead(read: Boolean = true)
+
+    /**
      * Delete a notification
      *
      * @param notification the notification to be deleted

@@ -17,6 +17,8 @@ class DefaultNotificationRepository @Inject constructor(private val notification
 
     override suspend fun markRead(notificationId: String, read: Boolean) = notificationDataSource.markRead(notificationId, read)
 
+    override suspend fun markAllRead(read: Boolean) = notificationDataSource.markAllRead(read)
+
     override suspend fun deleteNotification(notification: Notification) = notificationDataSource.deleteNotification(notification)
 
     override suspend fun deleteNotificationById(notificationId: String) = notificationDataSource.deleteNotificationById(notificationId)

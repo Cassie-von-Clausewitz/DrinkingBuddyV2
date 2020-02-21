@@ -1,17 +1,13 @@
 package com.kyleriedemann.drinkingbuddy.di
 
 import android.app.Application
-import android.content.Context
 import androidx.room.Room
 import com.kyleriedemann.drinkingbuddy.BuildConfig
 import com.kyleriedemann.drinkingbuddy.data.DrinkingBuddyDb
 import com.kyleriedemann.drinkingbuddy.data.source.*
 import com.kyleriedemann.drinkingbuddy.data.source.local.NotificationLocalDataSource
 import com.kyleriedemann.drinkingbuddy.data.source.local.ReadingLocalDataSource
-import com.kyleriedemann.drinkingbuddy.sdk.BACtrackDefaultCallbacks
-import com.kyleriedemann.drinkingbuddy.sdk.BacTrackFullCallbacks
 import com.kyleriedemann.drinkingbuddy.sdk.BacTrackSdk
-import com.kyleriedemann.drinkingbuddy.sdk.CoroutineBacTrackSdk
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -66,33 +62,8 @@ object ApplicationModule {
     @JvmStatic
     @Singleton
     @Provides
-    fun providesBacTrackSdk(
-        application: Application,
-        defaultCallbacks: Set<BACtrackDefaultCallbacks>,
-        fullCallbacks: Set<BacTrackFullCallbacks>
-    ): BacTrackSdk {
-        return BacTrackSdk(
-            application,
-            BuildConfig.BAC_TRACK_TOKEN,
-            defaultCallbacks.fold(BACtrackDefaultCallbacks(), { acc, next -> acc.foldInCallbacks(next) }),
-            fullCallbacks.fold(BacTrackFullCallbacks(), { acc, next -> acc.foldInCallbacks(next) })
-        )
-    }
-
-    @JvmStatic
-    @Singleton
-    @Provides
-    fun providesCoroutineBacTrackSdk(
-        application: Application,
-        defaultCallbacks: Set<BACtrackDefaultCallbacks>,
-        fullCallbacks: Set<BacTrackFullCallbacks>
-    ): CoroutineBacTrackSdk {
-        return CoroutineBacTrackSdk(
-            application,
-            BuildConfig.BAC_TRACK_TOKEN,
-            defaultCallbacks.fold(BACtrackDefaultCallbacks(), { acc, next -> acc.foldInCallbacks(next) }),
-            fullCallbacks.fold(BacTrackFullCallbacks(), { acc, next -> acc.foldInCallbacks(next) })
-        )
+    fun providesBacTrackSdk(application: Application): BacTrackSdk {
+        return BacTrackSdk(application, BuildConfig.BAC_TRACK_TOKEN)
     }
 }
 

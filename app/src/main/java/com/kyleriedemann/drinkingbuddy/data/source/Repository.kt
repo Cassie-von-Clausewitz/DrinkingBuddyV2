@@ -19,6 +19,8 @@ interface NotificationRepository {
 
     suspend fun markRead(notificationId: String, read: Boolean = true)
 
+    suspend fun markAllRead(read: Boolean = true)
+
     suspend fun deleteNotification(notification: Notification)
 
     suspend fun deleteNotificationById(notificationId: String)

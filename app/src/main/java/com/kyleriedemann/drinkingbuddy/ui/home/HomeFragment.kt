@@ -11,8 +11,6 @@ import com.eazypermissions.livedatapermission.PermissionManager
 import com.kyleriedemann.drinkingbuddy.R
 import com.kyleriedemann.drinkingbuddy.common.ui.BaseFragment
 import com.kyleriedemann.drinkingbuddy.databinding.FragmentHomeBinding
-import com.kyleriedemann.drinkingbuddy.sdk.ConnectedEvents
-import com.kyleriedemann.drinkingbuddy.sdk.ReadingEvents
 import timber.log.Timber
 
 const val REQUEST_ID = 420
@@ -45,25 +43,11 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>(), Permiss
      */
     private fun setupSdkObservers() {
         viewModel.connected.observe(viewLifecycleOwner) {
-            binding.textHome.text = when(it) {
-                is ConnectedEvents.FoundDevice -> "Found ${it.device}"
-                is ConnectedEvents.Connected -> "Connected ${it.deviceType}"
-                is ConnectedEvents.DidConnect -> "Did Connect ${it.message}"
-                ConnectedEvents.Disconnected -> "Disconnected"
-                ConnectedEvents.Timeout -> "Connection Timeout"
-                ConnectedEvents.NoDevicesFound -> "No Devices Found"
-                ConnectedEvents.ConnectionError -> "Connection Error"
-            }
+            binding.textHome.text = "$it"
         }
 
         viewModel.reading.observe(viewLifecycleOwner) {
-            binding.textHome.text = when(it) {
-                ReadingEvents.Start -> "Start"
-                is ReadingEvents.Countdown -> "Countdown ${it.count}"
-                ReadingEvents.Blow -> "Blow!"
-                ReadingEvents.Analyzing -> "Analyzing..."
-                is ReadingEvents.Result -> "Result: ${it.reading}"
-            }
+            binding.textHome.text = "$it"
         }
 
         viewModel.error.observe(viewLifecycleOwner) {
@@ -74,6 +58,7 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>(), Permiss
     /**
      * Sets up the [LiveData] Observer for permission results
      */
+    @Suppress("EXPERIMENTAL_API_USAGE")
     override fun setupObserver(permissionResultLiveData: LiveData<PermissionResult>) {
         if (view == null) return
         permissionResultLiveData.observe(viewLifecycleOwner) {
