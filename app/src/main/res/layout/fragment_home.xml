@@ -46,6 +46,18 @@
             app:layout_constraintVertical_bias="0.25"/>
 
         <com.google.android.material.button.MaterialButton
+            android:id="@+id/disconnect_button"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:onClick="@{ () -> viewModel.disconnect() }"
+            android:text="Disconnect"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/connect_button"/>
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/serial_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -65,7 +77,7 @@
             android:layout_marginEnd="16dp"
             android:onClick="@{ () -> viewModel.getDeviceFirmware() }"
             android:text="Get firmware version"
-            app:layout_constraintTop_toBottomOf="@+id/connect_button"
+            app:layout_constraintTop_toBottomOf="@+id/disconnect_button"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 

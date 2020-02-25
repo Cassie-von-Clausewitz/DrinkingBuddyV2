@@ -12,6 +12,7 @@ import com.snakydesign.livedataextensions.mergeWith
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ConflatedBroadcastChannel
 import timber.log.Timber
 
@@ -275,7 +276,7 @@ class ChannelCallbacks(private val dispatcher: CoroutineDispatcher): BACtrackAPI
     override fun BACtrackOnStateIdle() = stateEvents.postValue(SdkEvent.StateEvent.Idle)
     //</editor-fold>
 
-    val allEvents = ConflatedBroadcastChannel<SdkEvent>()
+    val allEvents = Channel<SdkEvent>(1000)
 
     /**
      * Wrapper extension to make the conversion back and forth with [LiveData] easier
@@ -283,10 +284,11 @@ class ChannelCallbacks(private val dispatcher: CoroutineDispatcher): BACtrackAPI
      * Also allows us to set a method to posting the value directly like we could with live data
      */
     private fun <E: SdkEvent> ConflatedBroadcastChannel<E>.postValue(element: E) {
-        Timber.i("Posting value to channel: $element")
+        Timber.tag("SdkEvent").d("$element")
         Dispatchers.IO.dispatch(GlobalScope.coroutineContext, Runnable {
             this.offer(element)
             allEvents.offer(element)
         })
     }
 }
+

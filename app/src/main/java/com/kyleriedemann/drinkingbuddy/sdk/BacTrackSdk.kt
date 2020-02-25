@@ -51,12 +51,17 @@ class BacTrackSdk(
         _bacTrackSdk?.connectToNearestBreathalyzer()
     }
 
+    fun disconnect() = throwIfNotInitialized {
+        _bacTrackSdk?.disconnect()
+    }
+
     fun takeReading() = throwIfNotInitialized {
         _bacTrackSdk?.startCountdown()
     }
 
     fun getFirmwareVersion() = throwIfNotInitialized {
         _bacTrackSdk?.firmwareVersion
+        _bacTrackSdk?.useCount
     }
 
     fun getSerialNumber() = throwIfNotInitialized {

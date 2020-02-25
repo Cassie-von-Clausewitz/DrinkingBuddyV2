@@ -132,6 +132,10 @@ class HomeViewModel @AssistedInject constructor (
         sdk.connectToClosestDevice()
     }
 
+    fun disconnect() {
+        sdk.disconnect()
+    }
+
     fun takeReading() {
         _text.postValue("Taking reading")
         sdk.takeReading()
