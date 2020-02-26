@@ -3,6 +3,7 @@ package com.kyleriedemann.drinkingbuddy.ui.notifications
 import android.os.Bundle
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
 import com.kyleriedemann.drinkingbuddy.R
 import com.kyleriedemann.drinkingbuddy.common.ui.BaseFragment
 import com.kyleriedemann.drinkingbuddy.databinding.FragmentNotificationsBinding
@@ -20,6 +21,10 @@ class NotificationsFragment : BaseFragment<NotificationsViewModel, FragmentNotif
 
         viewModel.errors.observe(viewLifecycleOwner) {
             showError(it)
+        }
+
+        viewModel.navigate.observe(viewLifecycleOwner) {
+            findNavController().navigate(NotificationsFragmentDirections.actionNavigationNotificationsToNotificationDetailFragment(it))
         }
     }
 

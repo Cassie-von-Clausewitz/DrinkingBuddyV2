@@ -24,6 +24,9 @@ class NotificationsViewModel @AssistedInject constructor(
     private val _errors = MutableLiveData<Exception>()
     val errors: LiveData<Exception> = _errors
 
+    private val _navigate = MutableLiveData<Notification>()
+    val navigate: LiveData<Notification> = _navigate
+
     val empty: LiveData<Boolean> = Transformations.map(_items) {
         it.isEmpty()
     }
@@ -50,6 +53,11 @@ class NotificationsViewModel @AssistedInject constructor(
         // todo launch a detail view for these
         notificationsRepository.updateNotification(notification.copy(read = true))
         loadNotifications()
+    }
+
+    fun openDetails(notification: Notification) = viewModelScope.launch {
+        notificationsRepository.updateNotification(notification.copy(read = true))
+        _navigate.postValue(notification)
     }
 
     fun clearError() = _errors.postValue(null)

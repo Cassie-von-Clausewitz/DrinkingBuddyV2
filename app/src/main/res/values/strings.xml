@@ -3,6 +3,7 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <string name="title_about">About</string>
 
     <string name="permissions_title">Permissions Required</string>
     <string name="permissions_denied">This app needs bluetooth and location permissions to communicate to devices.</string>

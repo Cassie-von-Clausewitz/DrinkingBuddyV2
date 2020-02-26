@@ -17,40 +17,49 @@
             type="com.kyleriedemann.drinkingbuddy.ui.dashboard.DashboardViewModel"/>
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/dashboard_list_item"
+    <com.google.android.material.card.MaterialCardView
+        android:layout_height="wrap_content"
         android:layout_width="match_parent"
-        android:layout_height="?android:attr/listPreferredItemHeightLarge"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/list_item_padding"
-        android:paddingBottom="@dimen/list_item_padding">
+        android:layout_margin="8dp">
 
-        <TextView
-            android:id="@+id/reading_values"
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/dashboard_list_item"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{viewModel.displayData(reading)}"
-            android:textAlignment="viewStart"
-            android:textAppearance="@android:style/TextAppearance.Material.Headline"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Prediction: 0.2, Reading 0.3" />
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/list_item_padding"
+            android:paddingBottom="@dimen/list_item_padding">
 
-        <TextView
-            android:id="@+id/reading_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@{Converters.dateToString(reading.time)}"
-            android:textAppearance="@android:style/TextAppearance.Material.Subhead"
-            android:textAlignment="viewStart"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="@+id/reading_values"
-            app:layout_constraintTop_toBottomOf="@+id/reading_values"
-            tools:text="February 18, 2020 at 9:08:17 PM CST"/>
+            <TextView
+                android:id="@+id/reading_values"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:text="@{viewModel.displayData(reading)}"
+                android:textAlignment="viewStart"
+                android:textAppearance="@android:style/TextAppearance.Material.Headline"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Prediction: 0.2, Reading 0.3" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/reading_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="@{Converters.dateToString(reading.time)}"
+                android:textAlignment="viewStart"
+                android:textAppearance="@android:style/TextAppearance.Material.Subhead"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="@+id/reading_values"
+                app:layout_constraintTop_toBottomOf="@+id/reading_values"
+                tools:text="February 18, 2020 at 9:08:17 PM CST" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </com.google.android.material.card.MaterialCardView>
 </layout>
