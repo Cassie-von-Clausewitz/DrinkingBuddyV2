@@ -32,7 +32,7 @@
             android:paddingBottom="@dimen/list_item_padding">
 
             <TextView
-                android:id="@+id/reading_values"
+                android:id="@+id/notification_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -46,7 +46,7 @@
                 tools:text="Prediction: 0.2, Reading 0.3" />
 
             <TextView
-                android:id="@+id/reading_time"
+                android:id="@+id/notification_message"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -56,8 +56,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="@+id/reading_values"
-                app:layout_constraintTop_toBottomOf="@+id/reading_values"
+                app:layout_constraintStart_toStartOf="@+id/notification_title"
+                app:layout_constraintTop_toBottomOf="@+id/notification_title"
                 tools:text="February 18, 2020 at 9:08:17 PM CST" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

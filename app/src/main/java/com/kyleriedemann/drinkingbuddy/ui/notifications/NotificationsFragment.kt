@@ -37,7 +37,7 @@ class NotificationsFragment : BaseFragment<NotificationsViewModel, FragmentNotif
     }
 
     private fun setupListAdapter() {
-        listAdapter = NotificationsAdapter(viewModel)
+        listAdapter = NotificationsAdapter(findNavController())
         binding.notificationsList.adapter = listAdapter
     }
 }

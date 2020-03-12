@@ -21,6 +21,7 @@ import javax.inject.Singleton
         HomeModule::class,
         DashboardModule::class,
         NotificationsModule::class,
+        NotificationDetailModule::class,
         ViewModelAssistedFactoriesModule::class
     ])
 interface ApplicationComponent : AndroidInjector<DrinkingBuddyApplication> {
