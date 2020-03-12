@@ -12,8 +12,8 @@ import java.util.*
 /**
  * A notification shown to the user
  */
-//@Parcelize
-//@TypeParceler<Instant, InstantClassParceler>
+@Parcelize
+@TypeParceler<Instant, InstantClassParceler>
 @Entity(tableName = "notifications")
 data class Notification @JvmOverloads constructor(
     @ColumnInfo(name = "title") var title: String = "",
@@ -21,7 +21,7 @@ data class Notification @JvmOverloads constructor(
     @ColumnInfo(name = "read") var read: Boolean = false,
     @ColumnInfo(name = "datetime") var time: Instant = Instant.now(),
     @PrimaryKey @ColumnInfo(name = "id") var id: String = UUID.randomUUID().toString()
-)
+): Parcelable
 
 object InstantClassParceler: Parceler<Instant> {
     override fun create(parcel: Parcel): Instant = Instant.ofEpochMilli(parcel.readLong())

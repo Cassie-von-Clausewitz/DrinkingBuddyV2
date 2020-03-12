@@ -3,6 +3,8 @@ package com.kyleriedemann.drinkingbuddy.ui.notifications
 import android.os.Bundle
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.observe
+import androidx.navigation.Navigator
+import androidx.navigation.fragment.FragmentNavigatorExtras
 import androidx.navigation.fragment.findNavController
 import com.kyleriedemann.drinkingbuddy.R
 import com.kyleriedemann.drinkingbuddy.common.ui.BaseFragment
@@ -24,7 +26,13 @@ class NotificationsFragment : BaseFragment<NotificationsViewModel, FragmentNotif
         }
 
         viewModel.navigate.observe(viewLifecycleOwner) {
-            findNavController().navigate(NotificationsFragmentDirections.actionNavigationNotificationsToNotificationDetailFragment(it))
+            it?.let {
+                val action = NotificationsFragmentDirections.actionNavigationNotificationsToNotificationDetailFragment(it)
+                val extras = FragmentNavigatorExtras()
+
+                findNavController().navigate(action, extras)
+                viewModel.clearNavigation()
+            }
         }
     }
 

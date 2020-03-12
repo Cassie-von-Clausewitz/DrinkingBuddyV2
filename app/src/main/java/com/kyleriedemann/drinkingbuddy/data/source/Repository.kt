@@ -13,6 +13,8 @@ interface NotificationRepository {
 
     suspend fun getNotificationById(notificationId: String): LceState<Notification>
 
+    fun getLiveNotificationById(notificationId: String): LiveData<Notification?>
+
     suspend fun insertNotification(notification: Notification)
 
     suspend fun updateNotification(notification: Notification)

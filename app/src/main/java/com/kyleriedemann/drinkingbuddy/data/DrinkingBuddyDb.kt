@@ -10,7 +10,7 @@ import com.kyleriedemann.drinkingbuddy.data.source.local.NotificationDao
 import com.kyleriedemann.drinkingbuddy.data.source.local.ReadingDao
 
 @TypeConverters(InstantConverter::class)
-@Database(entities = [Reading::class, Notification::class], version = 1, exportSchema = true)
+@Database(entities = [Reading::class, Notification::class], version = 1, exportSchema = false)
 abstract class DrinkingBuddyDb : RoomDatabase() {
 
     abstract fun readingDao() : ReadingDao

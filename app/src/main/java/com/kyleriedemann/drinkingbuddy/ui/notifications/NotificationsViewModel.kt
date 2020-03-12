@@ -24,8 +24,8 @@ class NotificationsViewModel @AssistedInject constructor(
     private val _errors = MutableLiveData<Exception>()
     val errors: LiveData<Exception> = _errors
 
-    private val _navigate = MutableLiveData<Notification>()
-    val navigate: LiveData<Notification> = _navigate
+    private val _navigate = MutableLiveData<Notification?>()
+    val navigate: LiveData<Notification?> = _navigate
 
     val empty: LiveData<Boolean> = Transformations.map(_items) {
         it.isEmpty()
@@ -63,6 +63,8 @@ class NotificationsViewModel @AssistedInject constructor(
     fun clearError() = _errors.postValue(null)
 
     fun refresh() = loadNotifications()
+
+    fun clearNavigation() = _navigate.postValue(null)
 
     @AssistedInject.Factory
     interface Factory : ViewModelAssistedFactory<NotificationsViewModel>

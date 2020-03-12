@@ -36,6 +36,8 @@ class NotificationLocalDataSource internal constructor(
         }
     }
 
+    override fun getLiveNotificationById(notificationId: String) = notificationDao.getLiveNotificationById(notificationId)
+
     override suspend fun insertNotification(notification: Notification) = withContext(ioDispatcher) {
         notificationDao.insertNotification(notification)
     }

@@ -27,7 +27,13 @@
             app:destination="@id/navigation_about" />
         <action
             android:id="@+id/action_navigation_notifications_to_notificationDetailFragment"
-            app:destination="@id/notificationDetailFragment" />
+            app:destination="@id/notificationDetailFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_open_enter"
+            app:popExitAnim="@anim/fragment_open_exit"
+            app:popUpTo="@id/navigation_notifications"
+            app:popUpToInclusive="false" />
     </fragment>
 
     <fragment

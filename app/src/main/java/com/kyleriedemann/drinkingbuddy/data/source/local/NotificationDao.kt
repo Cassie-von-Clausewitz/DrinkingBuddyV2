@@ -32,6 +32,15 @@ interface NotificationDao {
     suspend fun getNotificationById(notificationId: String): Notification?
 
     /**
+     * Select a notification by its ID
+     *
+     * @param notificationId the id of the notification
+     * @return the notification with the notificationId, if present
+     */
+    @Query("SELECT * FROM Notifications WHERE id = :notificationId")
+    fun getLiveNotificationById(notificationId: String): LiveData<Notification?>
+
+    /**
      * Insert a notification in the database. If the notification exists, replace it.
      *
      * @param notification the notification to be inserted

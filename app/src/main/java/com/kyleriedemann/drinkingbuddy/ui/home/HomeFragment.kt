@@ -23,6 +23,7 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>(), Permiss
         super.onStart()
         requestPermissions()
         setupSdkObservers()
+        viewModel.sendWelcomeNotification()
     }
 
     /**

@@ -8,6 +8,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import timber.log.Timber
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,16 +31,16 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            if (destination.id == R.id.navigation_notifications) {
-
-            } else {
-
-            }
+            Timber.v("controller: [$controller], destination: [$destination], arguments: [$arguments]")
         }
     }
 
     override fun onSupportNavigateUp(): Boolean {
+        Timber.v("navigating up")
         val navController = findNavController(R.id.nav_host_fragment)
+        Timber.v("$navController")
+//        Timber.v("${navController.navigateUp()}")
+//        Timber.v("${navController.navigateUp(appBarConfiguration)}")
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }

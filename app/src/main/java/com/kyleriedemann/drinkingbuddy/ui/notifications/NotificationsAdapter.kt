@@ -2,6 +2,7 @@ package com.kyleriedemann.drinkingbuddy.ui.notifications
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.navigation.NavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -27,6 +28,10 @@ class NotificationsAdapter(private val viewModel: NotificationsViewModel) :
             binding.viewModel = viewModel
             binding.notification = item
             binding.executePendingBindings()
+
+            binding.notificationListItemCard.setOnClickListener {
+
+            }
         }
 
         companion object {

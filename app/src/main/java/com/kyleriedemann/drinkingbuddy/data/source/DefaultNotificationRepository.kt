@@ -11,6 +11,8 @@ class DefaultNotificationRepository @Inject constructor(private val notification
 
     override suspend fun getNotificationById(notificationId: String) = notificationDataSource.getNotificationById(notificationId)
 
+    override fun getLiveNotificationById(notificationId: String): LiveData<Notification?> = notificationDataSource.getLiveNotificationById(notificationId)
+
     override suspend fun insertNotification(notification: Notification) = notificationDataSource.insertNotification(notification)
 
     override suspend fun updateNotification(notification: Notification) = notificationDataSource.updateNotification(notification)
