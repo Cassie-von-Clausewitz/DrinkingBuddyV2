@@ -2,6 +2,8 @@ package com.kyleriedemann.drinkingbuddy.di
 
 import android.app.Application
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kyleriedemann.drinkingbuddy.BuildConfig
 import com.kyleriedemann.drinkingbuddy.data.DrinkingBuddyDb
 import com.kyleriedemann.drinkingbuddy.data.source.*
@@ -30,7 +32,7 @@ object ApplicationModule {
             application,
             DrinkingBuddyDb::class.java,
             "DrinkingBuddy.db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
     }
 
     @JvmStatic

@@ -129,30 +129,40 @@ class HomeViewModel @AssistedInject constructor (
 
     fun connectToClosestDevice() {
         _text.postValue("Connecting to device")
-        sdk.connectToClosestDevice()
+        sdk.safeCall { it.connectToClosestDevice() }
     }
 
     fun disconnect() {
-        sdk.disconnect()
+        sdk.safeCall { it.disconnect() }
     }
 
     fun takeReading() {
         _text.postValue("Taking reading")
-        sdk.takeReading()
+        sdk.safeCall { it.takeReading() }
     }
 
     fun getDeviceFirmware() = viewModelScope.launch {
         _text.postValue("Reading firmware...")
-        sdk.getFirmwareVersion()
+        sdk.safeCall { it.getFirmwareVersion() }
     }
 
     fun getSerialNumber() = viewModelScope.launch {
         _text.postValue("Reading serial number...")
-        sdk.getSerialNumber()
+        sdk.safeCall { it.getSerialNumber() }
     }
 
     fun sendWelcomeNotification() = viewModelScope.launch {
+        _text.postValue("Sent welcome notification!")
         notificationRepository.insertNotification(Notification(title = "Welcome!", message = "Connect a device to start taking readings."))
+    }
+
+    private fun BacTrackSdk.safeCall(block: (BacTrackSdk) -> Unit) {
+        try {
+            block.invoke(this)
+        } catch (t: SdkNotInitialized) {
+            Timber.e(t, "Do you have bluetooth enabled?")
+            _text.postValue("Do you have bluetooth enabled?")
+        }
     }
 
     @AssistedInject.Factory

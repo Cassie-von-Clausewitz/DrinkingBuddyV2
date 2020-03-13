@@ -63,23 +63,19 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>(), Permiss
     override fun setupObserver(permissionResultLiveData: LiveData<PermissionResult>) {
         if (view == null) return
         permissionResultLiveData.observe(viewLifecycleOwner) {
-            Timber.v("Permissions response $it")
+            Timber.v(it.readableToString())
             if (it.requestCode != REQUEST_ID) return@observe
             when (it) {
                 is PermissionResult.PermissionGranted -> {
-                    Timber.v("Permissions Granted")
                     viewModel.permissionsGranted()
                 }
                 is PermissionResult.PermissionDenied -> {
-                    Timber.w("Permissions Denied [${it.deniedPermissions}]")
                     permissionsDenied()
                 }
                 is PermissionResult.PermissionDeniedPermanently -> {
-                    Timber.w("Permissions Denied Forever [${it.permanentlyDeniedPermissions}]")
                     permissionsDeniedForever()
                 }
                 is PermissionResult.ShowRational -> {
-                    Timber.v("Show Rational")
                     showRational()
                 }
             }
@@ -111,5 +107,12 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>(), Permiss
             }
             builder.create().show()
         }
+    }
+
+    private fun PermissionResult.readableToString(): String = when(this) {
+        is PermissionResult.PermissionGranted -> "PermissionGranted(requestCode: ${this.requestCode})"
+        is PermissionResult.PermissionDenied -> "PermissionDenied(requestCode: ${this.requestCode}, deniedPermissions: ${this.deniedPermissions})"
+        is PermissionResult.ShowRational -> "ShowRational(requestCode: ${this.requestCode})"
+        is PermissionResult.PermissionDeniedPermanently -> "PermissionDeniedPermanently(requestCode: ${this.requestCode}, permanentlyDeniedPermissions: ${this.permanentlyDeniedPermissions})"
     }
 }
