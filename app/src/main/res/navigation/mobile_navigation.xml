@@ -35,7 +35,6 @@
             app:popUpTo="@id/navigation_notifications"
             app:popUpToInclusive="false" />
     </fragment>
-
     <fragment
         android:id="@+id/notificationDetailFragment"
         android:name="com.kyleriedemann.drinkingbuddy.ui.notifications.NotificationDetailFragment"
@@ -48,5 +47,29 @@
         android:name="com.kyleriedemann.drinkingbuddy.ui.about.AboutFragment"
         android:label="@string/title_about">
         <argument android:name="data" app:argType="com.mikepenz.aboutlibraries.LibsBuilder"/>
+    </fragment>
+
+    <fragment
+        android:id="@+id/logListFragment"
+        android:name="com.kyleriedemann.drinkingbuddy.ui.log.LogListFragment"
+        android:label="LogListFragment">
+        <action
+            android:id="@+id/action_logListFragment_to_logDetailFragment"
+            app:destination="@id/logDetailFragment"
+            app:enterAnim="@anim/fragment_open_enter"
+            app:exitAnim="@anim/fragment_open_exit"
+            app:popEnterAnim="@anim/fragment_open_enter"
+            app:popExitAnim="@anim/fragment_open_exit" />
+        <deepLink
+            android:id="@+id/deepLink"
+            app:uri="www.drinkingbuddy.com/log" />
+    </fragment>
+    <fragment
+        android:id="@+id/logDetailFragment"
+        android:name="com.kyleriedemann.drinkingbuddy.ui.log.LogDetailFragment"
+        android:label="LogDetailFragment" >
+        <argument
+            android:name="log"
+            app:argType="com.kyleriedemann.drinkingbuddy.data.models.Log" />
     </fragment>
 </navigation>

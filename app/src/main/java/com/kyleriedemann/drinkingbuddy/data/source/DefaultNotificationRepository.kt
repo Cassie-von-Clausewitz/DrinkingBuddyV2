@@ -2,12 +2,17 @@ package com.kyleriedemann.drinkingbuddy.data.source
 
 import androidx.lifecycle.LiveData
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class DefaultNotificationRepository @Inject constructor(private val notificationDataSource: NotificationDataSource): NotificationRepository {
     override suspend fun getNotifications() = notificationDataSource.getNotifications()
 
     override fun getLiveNotifications(): LiveData<List<Notification>> = notificationDataSource.getNotificationsLive()
+
+    override fun getLiveUnreadNotificationCount(): LiveData<Int> = notificationDataSource.getLiveUnreadNotificationCount()
+
+    override fun getUnreadNotificationCount(): Flow<Int> = notificationDataSource.getUnreadNotificationCount()
 
     override suspend fun getNotificationById(notificationId: String) = notificationDataSource.getNotificationById(notificationId)
 

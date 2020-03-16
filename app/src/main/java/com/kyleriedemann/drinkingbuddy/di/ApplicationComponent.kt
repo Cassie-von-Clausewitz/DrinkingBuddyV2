@@ -18,12 +18,14 @@ import javax.inject.Singleton
     modules = [
         AndroidInjectionModule::class,
         ApplicationModule::class,
+        MainActivityModule::class,
         HomeModule::class,
         DashboardModule::class,
         NotificationsModule::class,
         NotificationDetailModule::class,
         ViewModelAssistedFactoriesModule::class,
-        LogModule::class
+        LogModule::class,
+        LogListModule::class
     ])
 interface ApplicationComponent : AndroidInjector<DrinkingBuddyApplication> {
     @Component.Factory

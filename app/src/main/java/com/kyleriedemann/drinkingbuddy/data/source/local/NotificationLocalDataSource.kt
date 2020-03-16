@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import com.kyleriedemann.drinkingbuddy.data.LceState.Success
 import com.kyleriedemann.drinkingbuddy.data.LceState.Error
+import kotlinx.coroutines.flow.Flow
 
 class NotificationLocalDataSource internal constructor(
     private val notificationDao: NotificationDao,
@@ -22,6 +23,10 @@ class NotificationLocalDataSource internal constructor(
     }
 
     override fun getNotificationsLive(): LiveData<List<Notification>> = notificationDao.getLiveNotifications()
+
+    override fun getLiveUnreadNotificationCount(): LiveData<Int> = notificationDao.getLiveUnreadNotificationCount()
+
+    override fun getUnreadNotificationCount(): Flow<Int> = notificationDao.getUnreadNotificationCount()
 
     override suspend fun getNotificationById(notificationId: String) = withContext(ioDispatcher) {
         try {

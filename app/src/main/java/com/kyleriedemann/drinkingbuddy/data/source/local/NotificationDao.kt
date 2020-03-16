@@ -3,6 +3,7 @@ package com.kyleriedemann.drinkingbuddy.data.source.local
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NotificationDao {
@@ -21,6 +22,18 @@ interface NotificationDao {
      */
     @Query("SELECT * FROM Notifications ORDER BY datetime(datetime) DESC")
     fun getLiveNotifications(): LiveData<List<Notification>>
+
+    /**
+     * Select live count of unread notifications
+     */
+    @Query("SELECT count(id) from notifications WHERE read = 0")
+    fun getLiveUnreadNotificationCount(): LiveData<Int>
+
+    /**
+     * Select a flow of the unread count
+     */
+    @Query("SELECT count(id) from notifications WHERE read = 0")
+    fun getUnreadNotificationCount(): Flow<Int>
 
     /**
      * Select a notification by its ID

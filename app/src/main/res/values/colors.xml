@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
-    <color name="colorAccent">#D81B60</color>
+    <!--  Log Level Colors  -->
+    <color name="log_level_verbose">#C3E88D</color>
+    <color name="log_level_debug">#C792EA</color>
+    <color name="log_level_info">#82AAFF</color>
+    <color name="log_level_warn">#FFCB6B</color>
+    <color name="log_level_error">#FF5370</color>
+    <color name="log_level_assert">#FF8785</color>
+    <color name="log_level_unknown">#D9DBDE</color>
 </resources>

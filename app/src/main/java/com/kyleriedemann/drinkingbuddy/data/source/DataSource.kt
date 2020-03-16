@@ -1,14 +1,20 @@
 package com.kyleriedemann.drinkingbuddy.data.source
 
 import androidx.lifecycle.LiveData
+import androidx.room.Query
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
 import com.kyleriedemann.drinkingbuddy.data.models.Reading
 import com.kyleriedemann.drinkingbuddy.data.LceState
+import kotlinx.coroutines.flow.Flow
 
 interface NotificationDataSource {
     suspend fun getNotifications(): LceState<List<Notification>>
 
     fun getNotificationsLive(): LiveData<List<Notification>>
+
+    fun getLiveUnreadNotificationCount(): LiveData<Int>
+
+    fun getUnreadNotificationCount(): Flow<Int>
 
     suspend fun getNotificationById(notificationId: String): LceState<Notification>
 

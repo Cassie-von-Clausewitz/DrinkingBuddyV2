@@ -4,12 +4,17 @@ import androidx.lifecycle.LiveData
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
 import com.kyleriedemann.drinkingbuddy.data.models.Reading
 import com.kyleriedemann.drinkingbuddy.data.LceState
+import kotlinx.coroutines.flow.Flow
 
 interface NotificationRepository {
     // todo remove the result class and return these as live data, updated from external sources if needed
     suspend fun getNotifications(): LceState<List<Notification>>
 
     fun getLiveNotifications(): LiveData<List<Notification>>
+
+    fun getLiveUnreadNotificationCount(): LiveData<Int>
+
+    fun getUnreadNotificationCount(): Flow<Int>
 
     suspend fun getNotificationById(notificationId: String): LceState<Notification>
 

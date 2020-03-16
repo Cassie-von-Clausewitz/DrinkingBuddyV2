@@ -3,16 +3,24 @@ package com.kyleriedemann.drinkingbuddy
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.kyleriedemann.drinkingbuddy.data.source.NotificationRepository
+import dagger.android.support.DaggerAppCompatActivity
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : DaggerAppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
+
+    @Inject lateinit var notificationRepository: NotificationRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +40,16 @@ class MainActivity : AppCompatActivity() {
 
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
             Timber.v("controller: [$controller], destination: [$destination], arguments: [$arguments]")
+        }
+
+        lifecycleScope.launch {
+            notificationRepository.getUnreadNotificationCount().collect {
+                val badge = navView.getOrCreateBadge(R.id.navigation_notifications)
+                badge.number = it
+
+                if (it > 0) badge.setVisible(true, true)
+                else badge.isVisible = false
+            }
         }
     }
 
