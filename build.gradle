@@ -68,6 +68,7 @@ ext {
     liveDataPermissionsVersion = '2.0.1'
     materialVersion = '1.1.0'
     mockitoVersion = '3.2.4'
+    mockKVersion = '1.9.3'
     recyclerViewVersion = '1.1.0'
     robolectricVersion = '4.3.1'
     roomVersion = '2.2.4'

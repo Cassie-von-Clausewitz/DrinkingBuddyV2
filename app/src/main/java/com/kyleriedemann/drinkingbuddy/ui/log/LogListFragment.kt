@@ -33,12 +33,6 @@ class LogListFragment : BaseFragment<LogListViewModel, FragmentLogListBinding>()
         super.onViewCreated(view, savedInstanceState)
         setupListAdapter()
 
-//        lifecycleScope.launchWhenResumed {
-//            viewModel.items.collect {
-//                listAdapter.submitList(it)
-//            }
-//        }
-
         lifecycleScope.launchWhenResumed {
             viewModel.filteredItems().collect {
                 listAdapter.submitList(it)
@@ -58,23 +52,8 @@ class LogListFragment : BaseFragment<LogListViewModel, FragmentLogListBinding>()
             }
         })
 
-//        lifecycleScope.launchWhenResumed {
-//            viewModel.levels.collect { list ->
-//                list.forEach {
-//                    val chip = Chip(binding.chipGroup.context)
-//                    chip.text = it.name
-//                    val color = ContextCompat.getColor(chip.context, logLevelToColor(it))
-//                    chip.chipBackgroundColor = ColorStateList.valueOf(color)
-//                    binding.chipGroup.addView(chip)
-//                }
-//            }
-//        }
-
         lifecycleScope.launchWhenResumed {
             viewModel.levelSettings.collect { filter ->
-                binding.levelsText.text = filter.toString()
-                Timber.v("LevelFilter $filter")
-                Timber.v("Selections [verbose: ${binding.verboseChip.isChecked}, debug: ${binding.debugChip.isChecked}, info: ${binding.infoChip.isChecked}, warn: ${binding.warnChip.isChecked}, error: ${binding.errorChip.isChecked}, assert: ${binding.assertChip.isChecked}, unknown: ${binding.unknownChip.isChecked}]")
                 binding.verboseChip.isChecked = filter.verbose
                 binding.debugChip.isChecked = filter.debug
                 binding.infoChip.isChecked = filter.info
@@ -87,7 +66,6 @@ class LogListFragment : BaseFragment<LogListViewModel, FragmentLogListBinding>()
 
         lifecycleScope.launchWhenResumed {
             viewModel.tagSettings.collect { list ->
-                binding.tagsText.text = list.toString()
                 binding.chipGroup.removeAllViews()
                 list.forEach {
                     val chip = Chip(binding.chipGroup.context)

@@ -23,20 +23,6 @@ class LogLocalDataSource @Inject constructor(
     private val filterRepository: FilterRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend fun filteredLogs() = withContext(dispatcher) {
-        filterRepository.filter.flatMapLatest {
-            if (it.levelFilter.isNotEmpty && it.tagFilter.isEmpty) {
-                logDao.getLogsFilteredByLevel(it.levelFilter.intArray)
-            } else if (it.levelFilter.isEmpty && it.tagFilter.isNotEmpty) {
-                logDao.getLogsFilteredByTag(it.tagFilter.array)
-            } else if (it.levelFilter.isNotEmpty && it.tagFilter.isNotEmpty) {
-                logDao.getLogsFilteredByLevelAndTag(it.levelFilter.intArray, it.tagFilter.array)
-            } else {
-                logDao.getLogs()
-            }
-        }
-    }
-
     fun levels() = logDao.getLogLevels().flowOn(dispatcher)
 
     fun tags() = logDao.getLogTags().flowOn(dispatcher)

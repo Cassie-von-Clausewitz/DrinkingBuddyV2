@@ -38,20 +38,6 @@
                 android:layout_height="wrap_content"
                 android:paddingBottom="8dp">
 
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/levelsText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    />
-
-                <com.google.android.material.textview.MaterialTextView
-                    android:id="@+id/tagsText"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center"
-                    />
-
                 <com.google.android.material.button.MaterialButton
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

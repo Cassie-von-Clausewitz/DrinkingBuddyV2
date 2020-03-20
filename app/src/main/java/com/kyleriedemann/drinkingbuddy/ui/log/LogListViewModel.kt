@@ -3,6 +3,7 @@ package com.kyleriedemann.drinkingbuddy.ui.log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kyleriedemann.drinkingbuddy.data.interactors.FilteredLogPolicy
 import com.kyleriedemann.drinkingbuddy.data.models.LogLevel
 import com.kyleriedemann.drinkingbuddy.data.models.LogTag
 import com.kyleriedemann.drinkingbuddy.data.source.local.LogDao
@@ -18,10 +19,11 @@ import timber.log.Timber
 class LogListViewModel @AssistedInject constructor(
     @Assisted private val handle: SavedStateHandle,
     private val filterRepository: FilterRepository,
+    private val filteredLogPolicy: FilteredLogPolicy,
     private val logLocalDataSource: LogLocalDataSource
 ): ViewModel() {
 
-    suspend fun filteredItems() = logLocalDataSource.filteredLogs()
+    suspend fun filteredItems() = filteredLogPolicy.invoke()
 
     val levelSettings = filterRepository.levelFilter
 

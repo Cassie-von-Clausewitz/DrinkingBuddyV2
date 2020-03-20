@@ -71,7 +71,7 @@ data class LevelFilter(
     }
 }
 
-data class TagFilter(val logTags: List<LogTag>) {
+data class TagFilter(val logTags: List<LogTag> = emptyList()) {
     val isNotEmpty = logTags.isNotEmpty()
     val isEmpty = !isNotEmpty
 
@@ -108,7 +108,7 @@ data class TagFilter(val logTags: List<LogTag>) {
     }
 }
 
-data class LogFilters(val levelFilter: LevelFilter, val tagFilter: TagFilter) {
+data class LogFilters(val levelFilter: LevelFilter = LevelFilter(), val tagFilter: TagFilter = TagFilter()) {
     val isNotEmpty = levelFilter.isNotEmpty || tagFilter.isNotEmpty
     val isEmpty = !isNotEmpty
 }
