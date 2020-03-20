@@ -1,27 +1,16 @@
 package com.kyleriedemann.drinkingbuddy.ui.log
 
-import android.content.res.ColorStateList
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.chip.Chip
 import com.kyleriedemann.drinkingbuddy.R
 import com.kyleriedemann.drinkingbuddy.common.ui.BaseFragment
-import com.kyleriedemann.drinkingbuddy.data.models.LogLevel
-import com.kyleriedemann.drinkingbuddy.data.models.LogTag
 import com.kyleriedemann.drinkingbuddy.databinding.FragmentLogListBinding
-import com.kyleriedemann.drinkingbuddy.ui.common.logLevelToColor
-import kotlinx.android.synthetic.main.fragment_log_list.view.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class LogListFragment : BaseFragment<LogListViewModel, FragmentLogListBinding>() {
     override val viewModel: LogListViewModel by viewModels { viewModelFactory }

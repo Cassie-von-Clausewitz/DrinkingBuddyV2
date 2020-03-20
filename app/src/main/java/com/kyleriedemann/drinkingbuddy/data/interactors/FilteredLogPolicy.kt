@@ -1,5 +1,6 @@
 package com.kyleriedemann.drinkingbuddy.data.interactors
 
+import com.github.ajalt.timberkt.Timber.e
 import com.kyleriedemann.drinkingbuddy.data.source.local.LogDao
 import com.kyleriedemann.drinkingbuddy.ui.log.FilterRepository
 import com.kyleriedemann.drinkingbuddy.ui.log.LogFilters
@@ -8,7 +9,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 class FilteredLogPolicy @Inject constructor(
@@ -36,5 +36,5 @@ class FilteredLogPolicy @Inject constructor(
         }
     }
 
-    private fun logError(t: Throwable) = Timber.e(t, "Error in FilteredLogPolicy")
+    private fun logError(t: Throwable) = e(t) { "Error in FilteredLogPolicy" }
 }

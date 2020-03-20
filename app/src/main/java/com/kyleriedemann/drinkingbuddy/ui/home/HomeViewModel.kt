@@ -1,6 +1,8 @@
 package com.kyleriedemann.drinkingbuddy.ui.home
 
 import androidx.lifecycle.*
+import com.github.ajalt.timberkt.Timber.e
+import com.github.ajalt.timberkt.Timber.i
 import com.kyleriedemann.drinkingbuddy.data.models.Notification
 import com.kyleriedemann.drinkingbuddy.data.models.Reading
 import com.kyleriedemann.drinkingbuddy.data.source.NotificationRepository
@@ -17,7 +19,6 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 class HomeViewModel @AssistedInject constructor (
     @Assisted private val handle: SavedStateHandle,
@@ -65,7 +66,7 @@ class HomeViewModel @AssistedInject constructor (
     @FlowPreview
     @ExperimentalCoroutinesApi
     fun permissionsGranted() {
-        Timber.i("Starting SDK")
+        i { "Starting SDK" }
         sdk.start()
         receiveApiEvents()
         receiveConnectedEvents()
@@ -77,9 +78,9 @@ class HomeViewModel @AssistedInject constructor (
     @FlowPreview
     @ExperimentalCoroutinesApi
     private fun receiveApiEvents() = viewModelScope.launch(dispatcher) {
-        Timber.i("Opening channel subscriptions")
+        i { "Opening channel subscriptions"}
         sdk.apiKeyEvents.openSubscription().consumeAsFlow().distinctUntilChanged().collect {
-            Timber.i("ApiKeyEvent: $it")
+            i { "ApiKeyEvent: $it" }
         }
     }
 
@@ -87,7 +88,7 @@ class HomeViewModel @AssistedInject constructor (
     @ExperimentalCoroutinesApi
     private fun receiveConnectedEvents() = viewModelScope.launch(dispatcher) {
         sdk.connectedEvents.openSubscription().consumeAsFlow().distinctUntilChanged().collect {
-            Timber.i("ConnectedEvent: $it")
+            i { "ConnectedEvent: $it" }
             when(it) {
                 is SdkEvent.ConnectedEvent.Connected -> saveDeviceConnected(it.deviceType)
                 is SdkEvent.ConnectedEvent.FoundDevice -> saveDeviceFound(it.device)
@@ -101,7 +102,7 @@ class HomeViewModel @AssistedInject constructor (
     @ExperimentalCoroutinesApi
     private fun receiveReadingEvents() = viewModelScope.launch(dispatcher) {
         sdk.readingEvents.openSubscription().consumeAsFlow().distinctUntilChanged().collect {
-            Timber.i("ReadingEvent: $it")
+            i { "ReadingEvent: $it" }
             if (it is SdkEvent.ReadingEvent.Result) {
                 saveReading(it)
             }
@@ -113,7 +114,7 @@ class HomeViewModel @AssistedInject constructor (
     @ExperimentalCoroutinesApi
     private fun receiveDeviceInfoEvents() = viewModelScope.launch(dispatcher) {
         sdk.deviceInformationEvents.openSubscription().consumeAsFlow().distinctUntilChanged().collect {
-            Timber.i("DeviceInformationEvent: $it")
+            i { "DeviceInformationEvent: $it" }
             notificationRepository.insertNotification(Notification("Device Information", it.toString()))
         }
     }
@@ -122,7 +123,7 @@ class HomeViewModel @AssistedInject constructor (
     @ExperimentalCoroutinesApi
     private fun receiveErrorEvents() = viewModelScope.launch(dispatcher) {
         sdk.errorEvents.openSubscription().consumeAsFlow().flowOn(dispatcher).collect {
-            Timber.i("ErrorEvent: $it")
+            i { "ErrorEvent: $it" }
             _error.postValue(it)
         }
     }
@@ -160,7 +161,7 @@ class HomeViewModel @AssistedInject constructor (
         try {
             block.invoke(this)
         } catch (t: SdkNotInitialized) {
-            Timber.e(t, "Do you have bluetooth enabled?")
+            e(t) { "Do you have bluetooth enabled?" }
             _text.postValue("Do you have bluetooth enabled?")
         }
     }

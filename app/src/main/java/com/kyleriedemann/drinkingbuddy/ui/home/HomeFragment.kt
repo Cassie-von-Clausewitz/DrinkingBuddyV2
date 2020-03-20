@@ -8,10 +8,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.observe
 import com.eazypermissions.common.model.PermissionResult
 import com.eazypermissions.livedatapermission.PermissionManager
+import com.github.ajalt.timberkt.Timber.v
 import com.kyleriedemann.drinkingbuddy.R
 import com.kyleriedemann.drinkingbuddy.common.ui.BaseFragment
 import com.kyleriedemann.drinkingbuddy.databinding.FragmentHomeBinding
-import timber.log.Timber
 
 const val REQUEST_ID = 420
 
@@ -63,7 +63,7 @@ class HomeFragment : BaseFragment<HomeViewModel, FragmentHomeBinding>(), Permiss
     override fun setupObserver(permissionResultLiveData: LiveData<PermissionResult>) {
         if (view == null) return
         permissionResultLiveData.observe(viewLifecycleOwner) {
-            Timber.v(it.readableToString())
+            v { it.readableToString() }
             if (it.requestCode != REQUEST_ID) return@observe
             when (it) {
                 is PermissionResult.PermissionGranted -> {

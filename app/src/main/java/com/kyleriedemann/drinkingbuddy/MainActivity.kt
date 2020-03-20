@@ -3,20 +3,18 @@ package com.kyleriedemann.drinkingbuddy
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.github.ajalt.timberkt.Timber.v
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.kyleriedemann.drinkingbuddy.data.source.NotificationRepository
-import com.kyleriedemann.drinkingbuddy.ui.log.LogListFragmentDirections
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 class MainActivity : DaggerAppCompatActivity() {
@@ -42,7 +40,7 @@ class MainActivity : DaggerAppCompatActivity() {
         navView.setupWithNavController(navController)
 
         navController.addOnDestinationChangedListener { controller, destination, arguments ->
-            Timber.v("controller: [$controller], destination: [$destination], arguments: [$arguments]")
+            v { "controller: [$controller], destination: [$destination], arguments: [$arguments]" }
         }
 
         lifecycleScope.launch {

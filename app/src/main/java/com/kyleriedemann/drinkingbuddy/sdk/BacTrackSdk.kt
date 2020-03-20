@@ -7,9 +7,9 @@ import BACtrackAPI.Exceptions.BluetoothLENotSupportedException
 import BACtrackAPI.Exceptions.BluetoothNotEnabledException
 import BACtrackAPI.Exceptions.LocationServicesNotEnabledException
 import android.app.Application
+import com.github.ajalt.timberkt.Timber.e
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import timber.log.Timber
 
 /**
  * Created by kyle
@@ -37,11 +37,11 @@ class BacTrackSdk(
             _bacTrackSdk = BACtrackAPI(application, callbacks, apiKey)
             _bacTrackSdk?.breathalyzerBatteryVoltage
         } catch (t: BluetoothLENotSupportedException) {
-            Timber.e("BLE not supported")
+            e { "BLE not supported" }
         } catch (t: LocationServicesNotEnabledException) {
-            Timber.e("Location services not enabled")
+            e { "Location services not enabled" }
         } catch (t: BluetoothNotEnabledException) {
-            Timber.e("Bluetooth not enabled")
+            e { "Bluetooth not enabled" }
         }
     }
 

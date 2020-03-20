@@ -4,10 +4,8 @@ import com.kyleriedemann.drinkingbuddy.data.models.Log
 import com.kyleriedemann.drinkingbuddy.ui.log.FilterRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 /**

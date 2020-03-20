@@ -1,12 +1,13 @@
 package com.kyleriedemann.drinkingbuddy.ui.log
 
+import com.github.ajalt.timberkt.Timber.d
+import com.github.ajalt.timberkt.Timber.v
 import com.kyleriedemann.drinkingbuddy.data.models.LogLevel
 import com.kyleriedemann.drinkingbuddy.data.models.LogTag
 import com.tfcporciuncula.flow.FlowSharedPreferences
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.zip
-import timber.log.Timber
 import javax.inject.Inject
 
 data class LevelFilter(
@@ -57,7 +58,7 @@ data class LevelFilter(
 
     companion object {
         fun fromStringSet(stringSet: Set<String?>): LevelFilter {
-            Timber.d("LevelFilter.fromStringSet($stringSet)")
+            d { "LevelFilter.fromStringSet($stringSet)" }
             return LevelFilter(
                 verbose = stringSet.contains(LogLevel.Verbose.name),
                 debug = stringSet.contains(LogLevel.Debug.name),
@@ -82,7 +83,7 @@ data class TagFilter(val logTags: List<LogTag> = emptyList()) {
     }
 
     fun toggle(logTag: LogTag): TagFilter {
-        Timber.v("TagFilter.toggle($logTag): $this")
+        v { "TagFilter.toggle($logTag): $this" }
         return if (logTags.contains(logTag)) {
             val list = logTags.toMutableList()
             list.remove(logTag)
@@ -102,7 +103,7 @@ data class TagFilter(val logTags: List<LogTag> = emptyList()) {
 
     companion object {
         fun fromStringSet(stringSet: Set<String>): TagFilter {
-            Timber.d("TagFilter.fromStringSet($stringSet)")
+            d { "TagFilter.fromStringSet($stringSet)" }
             return TagFilter(stringSet.map { LogTag(it) })
         }
     }
