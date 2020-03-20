@@ -10,6 +10,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+/**
+ * Class that handles saving [Timber] logs to [Room]
+ *
+ * Important to note the raw usage of [LogDao] because we want the raw insert performance here instead
+ * of the extra lookup that will happen if we save a record from [LogLocalDataSource]
+ */
 class RoomTree(private val logDao: LogDao, private val dispatcher: CoroutineDispatcher) : Timber.DebugTree() {
     @SuppressLint("LogNotTimber")
     override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {

@@ -1,16 +1,189 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="com.kyleriedemann.drinkingbuddy.ui.common.Converters"/>
+
         <variable
             name="viewModel"
             type="com.kyleriedemann.drinkingbuddy.ui.log.LogListViewModel"/>
     </data>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/notifications_list"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+        android:layout_height="match_parent"
+        android:layout_marginBottom="48dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/notifications_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+        <com.google.android.material.circularreveal.CircularRevealFrameLayout
+            android:id="@+id/sheet"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_gravity="bottom|center_horizontal"
+            android:background="?android:attr/windowBackground"
+            android:visibility="invisible"
+            app:layout_behavior="com.google.android.material.transformation.FabTransformationSheetBehavior"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="8dp">
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/levelsText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    />
+
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/tagsText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center"
+                    />
+
+                <com.google.android.material.button.MaterialButton
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Clear Filters"
+                    android:onClick="@{ () -> viewModel.clearFilters() }"
+                    />
+
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/log_level_chip_group"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/Widget.MaterialComponents.Chip.Filter"
+                        android:padding="4dp">
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/verboseChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/log_verbose"
+                            android:textColor="@android:color/black"
+                            app:chipBackgroundColor="@color/log_level_verbose"
+                            style="@style/Widget.MaterialComponents.Chip.Filter"
+                            android:onClick="@{ () -> viewModel.toggleVerbose() }"
+                            />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/debugChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/log_debug"
+                            android:textColor="@android:color/black"
+                            app:chipBackgroundColor="@color/log_level_debug"
+                            style="@style/Widget.MaterialComponents.Chip.Filter"
+                            android:onClick="@{ () -> viewModel.toggleDebug() }"
+                            />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/infoChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/log_info"
+                            android:textColor="@android:color/black"
+                            app:chipBackgroundColor="@color/log_level_info"
+                            style="@style/Widget.MaterialComponents.Chip.Filter"
+                            android:onClick="@{ () -> viewModel.toggleInfo() }"
+                            />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/warnChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/log_warn"
+                            android:textColor="@android:color/black"
+                            app:chipBackgroundColor="@color/log_level_warn"
+                            style="@style/Widget.MaterialComponents.Chip.Filter"
+                            android:onClick="@{ () -> viewModel.toggleWarn() }"
+                            />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/errorChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/log_error"
+                            android:textColor="@android:color/black"
+                            app:chipBackgroundColor="@color/log_level_error"
+                            style="@style/Widget.MaterialComponents.Chip.Filter"
+                            android:onClick="@{ () -> viewModel.toggleError() }"
+                            />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/assertChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/log_assert"
+                            android:textColor="@android:color/black"
+                            app:chipBackgroundColor="@color/log_level_assert"
+                            style="@style/Widget.MaterialComponents.Chip.Filter"
+                            android:onClick="@{ () -> viewModel.toggleAssert() }"
+                            />
+
+                        <com.google.android.material.chip.Chip
+                            android:id="@+id/unknownChip"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checkable="true"
+                            android:text="@string/log_unknown"
+                            android:textColor="@android:color/black"
+                            app:chipBackgroundColor="@color/log_level_unknown"
+                            style="@style/Widget.MaterialComponents.Chip.Filter"
+                            android:onClick="@{ () -> viewModel.toggleUnknown() }"
+                            />
+
+                    </com.google.android.material.chip.ChipGroup>
+
+                </HorizontalScrollView>
+
+                <HorizontalScrollView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <com.google.android.material.chip.ChipGroup
+                        android:id="@+id/chip_group"
+                        android:paddingTop="4dp"
+                        android:paddingStart="4dp"
+                        android:paddingEnd="4dp"
+                        android:paddingBottom="8dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"/>
+
+                </HorizontalScrollView>
+
+            </LinearLayout>
+
+        </com.google.android.material.circularreveal.CircularRevealFrameLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_margin="16dp"
+            android:layout_gravity="bottom|end"
+            android:src="@drawable/ic_filter_list_black_24dp"
+            />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

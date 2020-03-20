@@ -72,4 +72,12 @@
             android:name="log"
             app:argType="com.kyleriedemann.drinkingbuddy.data.models.Log" />
     </fragment>
+    <action
+        android:id="@+id/action_global_logListFragment"
+        app:destination="@id/logListFragment"
+        app:enterAnim="@anim/fragment_open_enter"
+        app:exitAnim="@anim/fragment_open_exit"
+        app:popUpTo="@id/navigation_home"
+        app:popEnterAnim="@anim/fragment_open_enter"
+        app:popExitAnim="@anim/fragment_open_exit" />
 </navigation>

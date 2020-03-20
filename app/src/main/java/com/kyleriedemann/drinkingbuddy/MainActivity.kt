@@ -1,5 +1,7 @@
 package com.kyleriedemann.drinkingbuddy
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -10,6 +12,7 @@ import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.kyleriedemann.drinkingbuddy.data.source.NotificationRepository
+import com.kyleriedemann.drinkingbuddy.ui.log.LogListFragmentDirections
 import dagger.android.support.DaggerAppCompatActivity
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -51,10 +54,26 @@ class MainActivity : DaggerAppCompatActivity() {
                 else badge.isVisible = false
             }
         }
+
+        when (intent.extras?.getString(destinationKey) ?: "") {
+            logDestination -> navController.navigate(R.id.action_global_logListFragment)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {
         val navController = findNavController(R.id.nav_host_fragment)
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+    }
+
+    companion object {
+        const val destinationKey = "destinationKey"
+        const val logDestination = "logs"
+
+        fun logsIntent(context: Context): Intent {
+            val intent = Intent(context, MainActivity::class.java)
+            intent.action = Intent.ACTION_MAIN
+            intent.putExtra(destinationKey, logDestination)
+            return intent
+        }
     }
 }

@@ -23,6 +23,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven { url "https://jitpack.io" }
     }
 }
 
@@ -45,6 +46,7 @@ ext {
     androidXTestRulesVersion = '1.2.0-beta01'
     androidXAnnotations = '1.0.1'
     androidXLegacySupport = '1.0.0'
+    androidXPreferences = '1.1.0'
     appCompatVersion = '1.1.0'
     archLifecycleVersion = '2.2.0'
     archTestingVersion = '2.1.0'
@@ -57,6 +59,7 @@ ext {
     daggerVersion = '2.25.4'
     espressoVersion = '3.3.0-alpha04'
     flipperVersion = '0.32.2'
+    flowPreferencesVersion = '1.1.1'
     fragmentVersion = '1.2.2'
     fragmentKtxVersion = '1.2.2'
     hamcrestVersion = '1.3'

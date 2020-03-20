@@ -3,6 +3,7 @@ package com.kyleriedemann.drinkingbuddy.data.models
 import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.TypeParceler
@@ -25,7 +26,8 @@ data class Log @JvmOverloads constructor(
 ): Parcelable
 
 data class LogTag(
-    @ColumnInfo(name = "tag") var tag: String? = ""
+    @ColumnInfo(name = "tag") var tag: String? = "",
+    @Ignore var selected: Boolean = false
 )
 
 sealed class LogLevel(val level: Int, val name: String): Parcelable {
@@ -36,6 +38,16 @@ sealed class LogLevel(val level: Int, val name: String): Parcelable {
     @Parcelize object Error: LogLevel(6, "Error"), Parcelable
     @Parcelize object Assert: LogLevel(7, "Wtf"), Parcelable
     @Parcelize object Unknown: LogLevel(-1, "Unknown"), Parcelable
+
+    override fun toString(): String = when(this) {
+        Verbose -> "LogLevel.Verbose"
+        Debug -> "LogLevel.Debug"
+        Info -> "LogLevel.Info"
+        Warn -> "LogLevel.Warn"
+        Error -> "LogLevel.Error"
+        Assert -> "LogLevel.Assert"
+        Unknown -> "LogLevel.Unknown"
+    }
 
     companion object {
         fun fromLevel(level: Int): LogLevel = when(level) {

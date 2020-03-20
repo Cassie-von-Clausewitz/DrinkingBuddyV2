@@ -1,15 +1,16 @@
 package com.kyleriedemann.drinkingbuddy.di
 
 import android.app.Application
+import android.content.SharedPreferences
+import androidx.preference.PreferenceManager
 import androidx.room.Room
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.kyleriedemann.drinkingbuddy.BuildConfig
 import com.kyleriedemann.drinkingbuddy.data.DrinkingBuddyDb
 import com.kyleriedemann.drinkingbuddy.data.source.*
 import com.kyleriedemann.drinkingbuddy.data.source.local.NotificationLocalDataSource
 import com.kyleriedemann.drinkingbuddy.data.source.local.ReadingLocalDataSource
 import com.kyleriedemann.drinkingbuddy.sdk.BacTrackSdk
+import com.tfcporciuncula.flow.FlowSharedPreferences
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -66,6 +67,23 @@ object ApplicationModule {
     @Provides
     fun providesBacTrackSdk(application: Application): BacTrackSdk {
         return BacTrackSdk(application, BuildConfig.BAC_TRACK_TOKEN)
+    }
+
+    @JvmStatic
+    @Singleton
+    @Provides
+    fun provideSharedPrefs(application: Application): SharedPreferences {
+        return PreferenceManager.getDefaultSharedPreferences(application)
+    }
+
+    @JvmStatic
+    @Singleton
+    @Provides
+    fun provideFlowPrefs(
+        sharedPreferences: SharedPreferences,
+        ioDispatcher: CoroutineDispatcher
+    ): FlowSharedPreferences {
+        return FlowSharedPreferences(sharedPreferences, ioDispatcher)
     }
 }
 

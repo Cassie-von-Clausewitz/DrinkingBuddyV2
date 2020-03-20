@@ -104,6 +104,7 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$archLifecycleVersion"
+    implementation "androidx.preference:preference:$androidXPreferences"
 
     // compose incompatible with annotation processing
 //    implementation "androidx.compose:compose-runtime:$composeVersion"
@@ -194,4 +195,6 @@ dependencies {
     // about libraries
     implementation "com.mikepenz:aboutlibraries-core:$aboutLibrariesVersion"
     implementation "com.mikepenz:aboutlibraries:$aboutLibrariesVersion"
+
+    implementation "com.github.tfcporciuncula:flow-preferences:$flowPreferencesVersion"
 }

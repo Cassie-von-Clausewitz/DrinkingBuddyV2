@@ -18,4 +18,13 @@
 
     <string name="welcome_title">Welcome!</string>
     <string name="welcome_message">Connect a device to start taking readings.</string>
+
+    <!--  Log Levels  -->
+    <string name="log_verbose">Verbose</string>
+    <string name="log_debug">Debug</string>
+    <string name="log_info">Info</string>
+    <string name="log_warn">Warn</string>
+    <string name="log_error">Error</string>
+    <string name="log_assert">Assert</string>
+    <string name="log_unknown">Unknown</string>
 </resources>
